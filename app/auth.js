@@ -6,6 +6,19 @@
 export const ACCOUNTS_KEY='hgf-accounts-v1';
 export const SESSION_KEY='hgf-session-v1';
 
+// Password strength is GUIDANCE ONLY: it never blocks sign-up beyond the
+// existing >=8 rule in validatePassword. Score = count of rules met:
+// length >= 8, mixed case, a digit, a symbol. 0-1 = Weak, 2 = Fair, 3-4 = Strong.
+export function passwordStrength(pw){
+  const s=String(pw||'');
+  let score=0;
+  if(s.length>=8)score++;
+  if(/[a-z]/.test(s)&&/[A-Z]/.test(s))score++;
+  if(/\d/.test(s))score++;
+  if(/[^A-Za-z0-9]/.test(s))score++;
+  return {score, label:score<=1?'Weak':score===2?'Fair':'Strong'};
+}
+
 export function normalizeEmail(email){return String(email||'').trim().toLowerCase()}
 export function validateEmail(email){return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(normalizeEmail(email))}
 export function validatePassword(pw){return typeof pw==='string'&&pw.length>=8}
