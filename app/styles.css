@@ -887,3 +887,12 @@ html[data-theme=midnight] .ob-dots i{background:#3d5a75}
 .completion-ex-row{margin-bottom:8px}
 .completion-ex-row .grow b{font-size:14px}
 .completion-ex-row .grow small{color:var(--muted);font-size:13px}
+.contact-screen .contact-hero{background:linear-gradient(135deg,#122A3A,#0B6B42);color:#fff;border-radius:24px;padding:22px;margin:16px 0;display:flex;align-items:center;gap:16px;box-shadow:0 12px 28px rgba(20,42,68,.25)}
+.contact-screen .contact-hero .contact-monogram{width:64px;height:64px;flex:0 0 64px;border-radius:50%;background:#0F8A56;color:#fff;display:grid;place-items:center;font-size:24px;font-weight:900}
+.contact-screen .contact-hero h2{margin:0;font-size:24px;color:#fff}
+.contact-screen .contact-hero p{margin:4px 0 0;color:#D7F0E3}
+.contact-screen .contact-hero .contact-role{font-weight:800;color:#fff}
+.contact-socials .menu-icon.instagram{background:linear-gradient(45deg,#F58529,#DD2A7B,#8134AF)}
+.contact-socials .menu-icon.youtube{background:#FF0000}
+.contact-socials .menu-icon.telegram{background:#229ED9}
+.contact-socials .menu-icon.whatsapp{background:#25D366}
