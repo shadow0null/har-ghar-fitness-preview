@@ -129,6 +129,75 @@ export function textFlagsFor(id, fixes) {
   return (fixes?.flags || []).filter((f) => String(f.id) === String(id)).map((f) => f.note);
 }
 
+/** Honest minute estimate for a routine's steps. Timed steps contribute
+ * their seconds; each repetition is allowed REP_SECONDS seconds. The
+ * screens that show these minutes always say how they are calculated —
+ * they are estimates, never source data. */
+export const REP_SECONDS = 3;
+export function estimateSeconds(steps) {
+  let timed = 0, reps = 0;
+  for (const s of steps || []) {
+    if (s?.mode === 'timed') timed += Number(s.value) || 0;
+    else if (s?.mode === 'reps') reps += Number(s.value) || 0;
+  }
+  return { timedSecs: timed, repSecs: reps * REP_SECONDS, totalSecs: timed + reps * REP_SECONDS };
+}
+export function estimateMinutes(steps) {
+  return estimateSeconds(steps).totalSecs / 60;
+}
+export function estimateMinutesLabel(steps) {
+  return `≈ ${Math.max(1, Math.round(estimateMinutes(steps)))} min`;
+}
+
+/** Honest, data-derived tags for a program's Day 1 steps, used by the
+ * Challenge list filters and the Training quick filters. Every tag is
+ * computed from the steps themselves — muscle groups from the source
+ * muscle IDs, cardio from step names, equipment from the source
+ * instructions — and the screens explain the basis. Nothing here claims
+ * a medical outcome: "Lose Weight" means only that the routine is
+ * cardio-leaning (it contains a cardio-named move and timed movement is
+ * at least a quarter of the estimated time), "Build Muscle" means only
+ * that most of the estimated time comes from repetitions, and "Stretch"
+ * means only that at least a fifth of the steps are stretch moves. */
+const CARDIO_WORDS = /jump|jog|run|burpee|jack|climber|mountain/i;
+const UPPER_GROUPS = new Set(['Chest', 'Shoulders', 'Triceps', 'Biceps', 'Back']);
+const LOWER_GROUPS = new Set(['Legs', 'Legs & Glutes', 'Glutes & Hips', 'Calves', 'Inner Thighs & Hips']);
+export function dayTags(program, exercises) {
+  const steps = program?.days?.[0]?.steps || [];
+  const { timedSecs, repSecs, totalSecs } = estimateSeconds(steps);
+  const groups = new Set();
+  let upper = 0, lower = 0, core = 0, cardio = false, stretchSteps = 0, equipment = false;
+  for (const s of steps) {
+    const e = exercises?.[s.exerciseId];
+    if (!e) continue;
+    const name = String(e.name || '');
+    if (CARDIO_WORDS.test(name)) cardio = true;
+    if (/stretch/i.test(name)) stretchSteps++;
+    if (equipmentHints(e.guidance, e.tips).setup.length) equipment = true;
+    for (const g of muscleGroupsFor(e, null).groups) {
+      groups.add(g);
+      if (UPPER_GROUPS.has(g)) upper++;
+      else if (LOWER_GROUPS.has(g)) lower++;
+      else if (g === 'Abs & Core') core++;
+    }
+  }
+  const estMin = totalSecs / 60;
+  return {
+    muscle: repSecs > timedSecs,
+    weight: totalSecs > 0 && timedSecs >= totalSecs / 4 && cardio,
+    fullbody: String(program?.id || '').startsWith('7__4_') || groups.size >= 3,
+    upper: upper > 0 && upper > lower && upper > core,
+    lower: lower > 0 && lower > upper && lower > core,
+    abs: core >= 2,
+    stretch: steps.length > 0 && stretchSteps / steps.length >= 0.2,
+    equipment,
+    beginner: difficultyBolts(program).level === 'Beginner',
+    short: estMin < 10,
+    long: estMin >= 20,
+    estMin, timedSecs, repSecs, groups: [...groups],
+  };
+}
+
 /** Display label for a source catalog/module nameKey.
  * Only the three keys that are crude or sexualised are neutralised to
  * "General Fitness": man_boobs, v_lines, last_longer_in_bed. Ordinary
