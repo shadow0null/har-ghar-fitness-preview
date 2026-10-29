@@ -347,7 +347,7 @@ html[data-theme=midnight] .theme-tile.selected{background:#1B3448}
 .training-search{display:flex;align-items:center;gap:8px;background:var(--canvas);border:2px solid var(--teal);border-radius:15px;padding:9px 13px;color:var(--muted);min-height:48px}
 .training-search>span{font-size:23px;line-height:1;color:var(--blue);font-weight:800}
 .training-search input{flex:1;min-width:10px;border:0;outline:0;background:transparent;color:var(--ink);font-size:16px;padding:12px 0}
-.training-search:focus-within,.browse-search:focus-within{border-color:var(--teal);outline:3px solid #F5870B;outline-offset:2px}
+.training-search:focus-within,.browse-search:focus-within{border-color:var(--teal);outline:3px solid #0F8A56;outline-offset:2px}
 .training-search input::placeholder,.browse-search input::placeholder,.search::placeholder{color:var(--text);opacity:1}
 .header button.header-search{background:#0F8A56;color:#fff;border:2px solid #0F8A56;font-weight:900}
 .search-results h3{font-size:15px;margin:18px 0 8px}
@@ -804,7 +804,7 @@ html[data-theme=midnight] .discover-header .header-search-icon{background:var(--
 .focus-tile b{font-size:15px}
 /* 18: custom 44px green clear button replaces the tiny native search ×. */
 .browse-search input[type=search]::-webkit-search-cancel-button{display:none}
-.browse-search .search-clear{flex:0 0 44px;width:44px;height:44px;min-height:44px;display:grid;place-items:center;font-size:26px;line-height:1;color:#0F8A56;font-weight:800}
+.browse-search .search-clear{flex:0 0 44px;width:44px;height:44px;min-height:44px;display:grid;place-items:center;font-size:24px;line-height:1;color:#fff;font-weight:800;background:#0F8A56;border-radius:50%}
 .browse-search .search-clear[hidden]{display:none}
 .browse-search:focus-within{border-color:#0F8A56}
 /* 21: no dark gradient over a photo-less collection banner. */
@@ -813,3 +813,13 @@ html[data-theme=midnight] .discover-header .header-search-icon{background:var(--
 .collection-count{margin:10px 0 0}
 /* 27: step titles never split at a hyphen (render also uses U+2011). */
 .step-grid .row h3{overflow-wrap:normal;hyphens:none}
+
+/* v5.14 follow-ups to the v5.12 verification (browser found 3 partials).
+   Root cause of the chip failure: in Midnight theme the base rule
+   `html[data-theme=midnight] .chips .chip` (specificity 0,3,1) beat every
+   selected-chip rule (0,3,0), so selected chips kept the dark slate
+   background with only a green border. These midnight selected rules
+   (0,4,1) restore the intended fills. The same bug also broke Training
+   chips in Midnight, fixed by the second rule. */
+html[data-theme=midnight] .discover-chips .chip.selected{background:#0F8A56;color:#fff;border-color:#0F8A56}
+html[data-theme=midnight] .chips .chip.selected{background:linear-gradient(135deg,#1DB271,#0B6B42);color:#fff;border-color:transparent}
