@@ -2,7 +2,9 @@
 // Pure logic only: no DOM, no storage access here, so node tests can import
 // this file directly. Nothing in this file ever holds a plaintext password:
 // sign-up stores a random salt plus a SHA-256 digest of (salt + password).
-// There is no server, no sync and no email sending anywhere in the app.
+// Fitness data has no server and is never synced; no email is ever sent.
+// Google sign-in is the one exception: it contacts Google only to verify an
+// email (see GOOGLE-SIGNIN.md) — it never uploads fitness data.
 export const ACCOUNTS_KEY='hgf-accounts-v1';
 export const SESSION_KEY='hgf-session-v1';
 
@@ -74,4 +76,91 @@ export function matchPlan({focus=[],pushups='0',programIds}){
   const fellBack=!set.has(id);
   if(fellBack)id='7__4_beginner';
   return {programId:id,level:levelNum,levelName,fellBack};
+}
+
+// ---- REAL Google sign-in: pure helpers (see GOOGLE-SIGNIN.md) ------------
+// Google verifies identity ONLY (email + name). The backend returns nothing
+// else, and no workout, history, or profile data ever leaves this device.
+// The secret is exchanged server-side and NEVER appears in this file.
+// Reused client: the studydesk.fun OAuth client (redirect URI
+// https://fitness.studydesk.fun/google-callback.php); its consent screen
+// shows that client's existing branding.
+export const GOOGLE_BACKEND_ORIGIN='https://fitness.studydesk.fun';
+
+// Shape of a Google-verified local account: same storage key as password
+// accounts, but no salt/hash — password login must refuse these accounts
+// with a truthful "uses Google sign-in" message, never the generic error.
+export function createGoogleAccountRecord({name,email}){
+  const norm=normalizeEmail(email);
+  return {name:String(name||'').trim()||norm.split('@')[0],email:norm,provider:'google',googleVerified:true,salt:null,hash:null,createdAt:new Date().toISOString(),onboarded:false,profile:null};
+}
+
+// Decision table for a Google-verified identity arriving in the app.
+// currentEmail: email of the currently signed-in local account, or null.
+// Returns one action the app must follow exactly (see GOOGLE-SIGNIN.md).
+export function resolveGoogleLink({accounts,currentEmail,googleEmail,googleName}){
+  const email=normalizeEmail(googleEmail);
+  const name=String(googleName||'').trim()||email.split('@')[0];
+  if(currentEmail&&normalizeEmail(currentEmail)!==email){
+    return {action:'blocked-different-account',currentEmail:normalizeEmail(currentEmail),googleEmail:email};
+  }
+  const acc=(accounts||[]).find(x=>normalizeEmail(x.email)===email);
+  if(!acc)return {action:'create',email,name};
+  if(acc.provider==='google'||(!acc.hash&&!acc.salt))return {action:'signin',email};
+  if(acc.googleVerified)return {action:'signin',email};
+  return {action:'link',email};
+}
+
+// Must stay byte-identical in wording to hgf_error_message() in
+// server/lib/oauth.php. Every failure lands back in the app with a message;
+// no failure path ever creates a session.
+export function googleErrorMessage(code){
+  const map={
+    access_denied:'Google sign-in was cancelled. You can try again or continue as a guest.',
+    state_mismatch:'Sign-in was interrupted (security check failed). Please try again.',
+    exchange_failed:'Google could not complete sign-in. Please try again.',
+    id_token_invalid:"Google's sign-in response could not be verified. Please try again.",
+    email_unverified:"That Google account's email is not verified. Use a verified Google account or continue with email.",
+    not_configured:'Google sign-in is not set up yet. Continue with email or as a guest.',
+    invalid_return:'Sign-in was interrupted. Please try again.',
+    unknown:'Google sign-in could not be completed. Please try again.',
+  };
+  return map[code]||map.unknown;
+}
+
+// Backend start URL for the "Continue with Google" button. GitHub Pages
+// cannot run the backend, so the preview points at the production backend
+// (which returns a 5-minute one-time token); every other host uses its own
+// origin. return_to is the app's own URL (index.html stripped, no query),
+// which the backend allowlists and falls back from if it does not match.
+export function googleStartUrl({hostname='',origin='',pathname='/'}={}){
+  const isPreview=String(hostname).endsWith('github.io');
+  const base=isPreview?GOOGLE_BACKEND_ORIGIN:origin;
+  let path=String(pathname||'/');
+  if(path.endsWith('index.html'))path=path.slice(0,-'index.html'.length);
+  if(!path.endsWith('/'))path+='/';
+  return base+'/google-login.php?return_to='+encodeURIComponent(origin+path);
+}
+
+// Identity endpoint: same-origin cookie mode, or the production backend
+// with a one-time token (preview only — the token is stripped from the URL
+// immediately after exchange, per GOOGLE-SIGNIN.md).
+export function googleMeUrl({hostname='',origin='',token=null}={}){
+  if(token)return GOOGLE_BACKEND_ORIGIN+'/google-me.php?token='+encodeURIComponent(token);
+  return origin+'/google-me.php';
+}
+
+// Backend logout endpoint (fire-and-forget; local logout must succeed even
+// if the backend is unreachable). Same preview/production split as start.
+export function googleLogoutUrl({hostname='',origin=''}={}){
+  return (String(hostname).endsWith('github.io')?GOOGLE_BACKEND_ORIGIN:origin)+'/google-logout.php';
+}
+
+// Remove ONLY the google return params from a query string, preserving any
+// other param (e.g. tab=meal). Returns '' or a leading-'?' query string.
+export function stripGoogleParams(search){
+  const sp=new URLSearchParams(String(search||''));
+  sp.delete('google');sp.delete('google_error');sp.delete('google_token');
+  const rest=sp.toString();
+  return rest?('?'+rest):'';
 }

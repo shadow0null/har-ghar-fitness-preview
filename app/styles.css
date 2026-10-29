@@ -630,3 +630,10 @@ html[data-theme=midnight] .nav .selected b{background:#1B3448}
   .page>h2{font-size:24px}
   .banner h2{font-size:28px}
 }
+
+/* Google sign-in (v16): white button with the G mark, per the login image.
+   Kept white in both themes so it stays recognisable as Google's button. */
+.google-btn{display:flex;align-items:center;justify-content:center;gap:10px;background:#fff!important;color:#1F2937!important;border:2px solid #CBD5D1!important;font-size:17px;font-weight:900;border-radius:16px;padding:17px}
+.google-btn svg{flex-shrink:0}
+html[data-theme=midnight] .google-btn{background:#fff!important;color:#1F2937!important;border-color:#CBD5D1!important}
+.profile-pill.google-pill{background:#0F8A56;color:#fff;border-color:#0F8A56}
