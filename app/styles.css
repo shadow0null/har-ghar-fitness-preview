@@ -501,3 +501,132 @@ html[data-theme=midnight] .nb-figure.selected{background:#1B3448;color:#86C99B}
 .nb-plan-card h2{color:#fff;margin:8px 0}
 .nb-plan-card p{color:#eafaf0;margin:6px 0}
 .nb-plan-card .nb-note{font-size:13px;color:#fff;background:#ffffff22;border-radius:12px;padding:10px 12px}
+
+/* ============ BOLD same-to-same pass v15 — match the generated design images ============
+   Image DNA (measured from the 8 reference images): vivid saturated green blob
+   top-left + peach blob bottom-right on a pale base; pure-white cards with LARGE
+   radius (28-36px) and STRONG visible shadows; extra-bold dark-navy headings
+   (screen titles ~40px+, section titles ~26px); tall saturated emerald gradient
+   pills with bold white text + drop shadow; big solid-green circular icon chips;
+   selected chips solid green, unselected light grey. The previous pass was too
+   pale/subtle — this block deliberately turns every one of those dials up.
+   Midnight keeps the same boldness with dark-theme equivalents (never grey wash).
+   Appended last so these rules win at equal specificity. */
+:root{--shadow:0 24px 60px rgba(16,50,40,.22)}
+:root[data-theme=midnight]{--shadow:0 24px 60px rgba(0,0,0,.55)}
+body{background:radial-gradient(560px 380px at -5% -5%,rgba(16,185,129,.55),rgba(16,185,129,0) 70%),radial-gradient(520px 380px at 105% 105%,rgba(249,140,60,.50),rgba(249,140,60,0) 70%),#F4F7F5}
+html[data-theme=midnight] body{background:radial-gradient(560px 380px at -5% -5%,rgba(16,185,129,.30),rgba(16,185,129,0) 70%),radial-gradient(520px 380px at 105% 105%,rgba(249,140,60,.22),rgba(249,140,60,0) 70%),#0b1421}
+#app{background:radial-gradient(560px 340px at -5% -5%,rgba(16,185,129,.28),rgba(16,185,129,0) 70%),radial-gradient(520px 340px at 105% 105%,rgba(249,140,60,.22),rgba(249,140,60,0) 70%),#F4F7F5;padding-bottom:112px}
+html[data-theme=midnight] #app{background:radial-gradient(560px 340px at -5% -5%,rgba(16,185,129,.20),rgba(16,185,129,0) 70%),radial-gradient(520px 340px at 105% 105%,rgba(249,140,60,.16),rgba(249,140,60,0) 70%),#0b1421}
+p{font-size:15px}
+h2{font-size:26px;font-weight:900;color:var(--ink)}
+.page>h2{font-size:26px;font-weight:900}
+.header h1{font-size:19px;font-weight:900}
+.discover-section .section-heading h2{font-size:24px;font-weight:900}
+.discover-intro h2{font-size:28px;font-weight:900}
+.discover-intro{border-radius:28px;box-shadow:0 14px 30px rgba(20,42,68,.14)}
+.settings-card h2,.info-card h2{font-size:22px;font-weight:900}
+.info-card,.settings-card{border-radius:24px;padding:20px;box-shadow:0 12px 28px rgba(20,42,68,.12)}
+.legal-doc h1{font-size:34px;font-weight:900}
+.primary{padding:18px;font-size:17px;font-weight:900;box-shadow:0 12px 26px rgba(15,138,86,.38)}
+.secondary{padding:17px;font-size:16px;font-weight:800;border-width:2px}
+html[data-theme=midnight] .primary{background:linear-gradient(135deg,#25C87E,#0B6B42)}
+/* Auth cards: big radius, deep shadow, big logo lockup, huge headings. */
+.auth-page{border-radius:32px;box-shadow:0 24px 60px rgba(16,50,40,.22)}
+.auth-page .auth-logo-mark{flex-basis:84px;width:84px;height:84px}
+.auth-page .auth-logo-mark svg{width:84px;height:84px}
+.auth-page .brand-title{font-size:30px;font-weight:900}
+.auth-script{font-size:24px}
+.onboard h1{font-size:40px;font-weight:900;letter-spacing:-.04em}
+.auth-field input{min-height:56px;border-radius:20px;padding:15px 16px;font-size:16px}
+.auth-input-wrap.has-icon input{padding-left:68px}
+.auth-icon-chip{width:48px;height:48px}
+.auth-icon-chip svg{width:24px;height:24px}
+.auth-switch{font-size:15px}
+.auth-switch .auth-link{font-size:15px}
+.pw-meter .pw-seg{height:8px}
+/* LOGIN ONLY (orange-logo image standard): white bordered fields with green
+   outline icons, square Remember-me checkbox, flat solid-green rounded-rect
+   Log In button, OR divider, OUTLINED Continue as Guest button. No Google row. */
+.login-wrap input{background:#fff;border:2px solid #BFE3CF;border-radius:20px;min-height:56px;padding-left:60px;font-size:16px}
+html[data-theme=midnight] .login-wrap input{background:#16293A;border-color:#2A4A5E;color:var(--ink)}
+.login-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);display:grid;place-items:center;pointer-events:none}
+.login-icon svg{width:28px;height:28px}
+.login-solid{background:#0F8A56;border-radius:16px;padding:18px;font-size:18px;font-weight:900;box-shadow:0 12px 24px rgba(15,138,86,.35)}
+html[data-theme=midnight] .login-solid{background:#14A866}
+.or-divider{display:flex;align-items:center;gap:14px;margin:20px 0;color:var(--muted);font-weight:800;font-size:14px}
+.or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:var(--line)}
+.guest-outline{border:2px solid #0F8A56;color:#0F8A56;background:#fff;border-radius:16px;padding:17px;font-size:17px;font-weight:900}
+html[data-theme=midnight] .guest-outline{background:transparent;border-color:#86C99B;color:#86C99B}
+/* Onboarding: tall cards, thick selected border, big plan card. */
+.nb-figure{border-radius:28px;padding:22px 10px 16px}
+.nb-figure.selected{border-width:4px;box-shadow:0 12px 26px rgba(15,138,86,.22)}
+.nb-choice{border-radius:20px;padding:20px}
+.nb-chip{padding:14px 20px;font-size:14px}
+.ob-dots i{width:26px;height:6px}
+.nb-plan-card{border-radius:28px;padding:26px;box-shadow:0 16px 34px rgba(15,138,86,.28)}
+.nb-plan-card h2{font-size:24px}
+/* Tabs: strong cards, grey unselected chips, solid-green selected chips. */
+.row{border-radius:22px;padding:16px 18px;box-shadow:0 12px 28px rgba(20,42,68,.12)}
+.row .grow h3{font-size:17px;font-weight:800}
+.tile.program-tile{width:60px;height:60px}
+.chip{background:#EFF2F0;border:2px solid transparent;color:#142433;padding:13px 18px;font-size:14px;font-weight:800}
+html[data-theme=midnight] .chip{background:#1B3448;color:#cfe0ec}
+.chip.selected{background:#0F8A56;color:#fff;border-color:#0F8A56;box-shadow:0 8px 18px rgba(15,138,86,.35)}
+.challenge-card{border-radius:22px;box-shadow:0 12px 28px rgba(20,42,68,.12)}
+.challenge-card h3{font-size:18px}
+.mini-card{border-radius:22px;box-shadow:0 12px 28px rgba(20,42,68,.12)}
+.discovery .card,.catalog-grid .card{border-radius:22px;box-shadow:0 12px 28px rgba(20,42,68,.12)}
+.explore-banner{border-radius:28px;box-shadow:0 14px 30px rgba(20,42,68,.16)}
+.explore-banner-copy b{font-size:28px}
+.focus-tile{border-radius:22px;box-shadow:0 12px 28px rgba(20,42,68,.12)}
+.sleep-row{border-radius:22px;box-shadow:0 12px 28px rgba(20,42,68,.12)}
+.catalog-routine{border-radius:22px;box-shadow:0 12px 28px rgba(20,42,68,.12)}
+.create-card{border-radius:22px;box-shadow:0 12px 28px rgba(20,42,68,.12)}
+.tabs{border-radius:18px}
+.tabs .selected{box-shadow:0 6px 16px rgba(20,42,68,.14)}
+/* Training hero: green-gradient treatment over the real photo, white bold heading. */
+.banner{background:linear-gradient(120deg,#0B6B42,#0F8A56)}
+.banner-shade{background:linear-gradient(100deg,rgba(6,90,55,.92),rgba(15,138,86,.55) 55%,rgba(15,138,86,.15))}
+.banner h2{font-size:32px;font-weight:900;color:#fff}
+.banner .primary{font-size:15px;padding:16px 22px}
+.hero h2{font-size:32px;font-weight:900}
+/* Weekly Goal card: big bold title, mint pencil circle, thick progress bar. */
+.rhythm-card{border-radius:24px;box-shadow:0 14px 30px rgba(20,42,68,.14)}
+.rhythm-card .goal b{font-size:24px;font-weight:900}
+.goal-edit-wrap{font-size:15px}
+.rhythm-card .goal-edit{border-radius:50%;background:#E7F6EC}
+html[data-theme=midnight] .rhythm-card .goal-edit{background:#1B3448}
+.week-strip span{padding:12px 2px}
+.week-strip span b{font-size:15px}
+.week span{width:44px;height:44px}
+.rhythm-progress{height:10px}
+/* Report: navy numbers, gradient chart bars, strong goal ring card. */
+.stat{border-radius:22px;box-shadow:0 12px 28px rgba(20,42,68,.12)}
+.stat b{font-size:36px;color:var(--ink)}
+.week-chart .bar i{background:linear-gradient(180deg,#34D399,#0F8A56);border-radius:8px 8px 0 0}
+.goal-ring-card{border-radius:24px;box-shadow:0 12px 28px rgba(20,42,68,.12)}
+.goal-ring{width:96px;height:96px;flex-basis:96px}
+.goal-ring span{width:70px;height:70px;font-size:16px}
+/* Settings: big circular avatar, solid Account pill, big circular menu icons. */
+.profile-avatar{width:72px;height:72px;flex-basis:72px}
+.profile-avatar svg{width:38px;height:38px}
+.profile-card h2{font-size:22px}
+.profile-pill{background:#0F8A56;color:#fff;padding:8px 14px}
+.menu-icon{width:56px;height:56px;flex-basis:56px;border-radius:50%}
+.menu-icon svg{width:28px;height:28px}
+.menu-row .grow b{font-size:17px}
+/* Bottom nav: floating rounded bar, active tab on a light tile. */
+.nav{left:50%;width:calc(100% - 24px);max-width:540px;bottom:12px;border-radius:24px;border:1px solid var(--line);box-shadow:0 -8px 30px rgba(24,47,72,.18);padding:12px 7px max(12px,env(safe-area-inset-bottom))}
+.nav .selected b{background:#E7F6EC;border-radius:14px;min-width:44px;padding:6px}
+html[data-theme=midnight] .nav .selected b{background:#1B3448}
+/* Small screens: headings scale down but stay bold; nothing clipped. */
+@media(max-width:380px){
+  .onboard h1{font-size:34px}
+  .auth-page .auth-logo-mark{flex-basis:64px;width:64px;height:64px}
+  .auth-page .auth-logo-mark svg{width:64px;height:64px}
+  .auth-page .brand-title{font-size:26px}
+  h2{font-size:24px}
+  .page>h2{font-size:24px}
+  .banner h2{font-size:28px}
+}
