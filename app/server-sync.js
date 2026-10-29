@@ -1,4 +1,4 @@
-// Har Ghar Fitness — server sync layer (v5.9).
+// Har Ghar Fitness — server sync layer (v5.10).
 //
 // Pure logic + a thin fetch client. No DOM here, so node tests can import
 // this file directly. The app (app.js) owns its own state; this module
@@ -118,6 +118,8 @@ export function createServerClient({fetchImpl, base}) {
     verifyOtp: ({email, code}) => request('/auth-verify-otp.php', {method: 'POST', body: {email, code}}),
     resendOtp: ({email}) => request('/auth-resend-otp.php', {method: 'POST', body: {email}}),
     login: ({email, password, remember}) => request('/auth-login.php', {method: 'POST', body: {email, password, remember: !!remember}}),
+    forgotRequest: ({email}) => request('/auth-forgot-request.php', {method: 'POST', body: {email}}),
+    forgotReset: ({email, code, password}) => request('/auth-forgot-reset.php', {method: 'POST', body: {email, code, password}}),
     logout: () => request('/auth-logout.php', {method: 'POST'}),
     getData: () => request('/data-get.php'),
     putData: (data) => request('/data-put.php', {method: 'POST', body: {data}}),

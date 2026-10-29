@@ -3,7 +3,7 @@ import {coachMarkup,animateCoaches} from './coach.js';
 import {loadAnimations} from './lottie-lite.js';
 import {playSound,warmSounds,stopSounds} from './audio.js';
 import {unescapeSourceText,applyTextFixes,textFlagsFor,labelFor,equipmentHints,restAfter,weeklyDays,animationStatus,isMissingExercise,findDuplicateNames,discoverRoutineFor,discoverDisplayTitle,muscleGroupsFor,displayName,difficultyBolts,levelClassName,groupConsecutiveSteps,focusMismatchSteps,labelTip,isCoverPhoto,parseDeepLink,focusTileCount,estimateMinutesLabel,dayTags,adjustPlannedDays,compareProgramDays,quickChipTag,isBeginnerCatalogItem} from './text-utils.js';
-import {ACCOUNTS_KEY,SESSION_KEY,normalizeEmail,validateSignup,randomSaltHex,hashPassword,createAccountRecord,createGoogleAccountRecord,resolveGoogleLink,googleErrorMessage,googleStartUrl,googleMeUrl,googleLogoutUrl,googlePingUrl,stripGoogleParams,NB_STEPS,defaultNbAnswers,matchPlan,passwordStrength} from './auth.js';
+import {ACCOUNTS_KEY,SESSION_KEY,normalizeEmail,validateEmail,validatePassword,validateSignup,randomSaltHex,hashPassword,createAccountRecord,createGoogleAccountRecord,resolveGoogleLink,googleErrorMessage,googleStartUrl,googleMeUrl,googleLogoutUrl,googlePingUrl,stripGoogleParams,NB_STEPS,defaultNbAnswers,matchPlan,passwordStrength} from './auth.js';
 import {serverApiBase,serverAvailable,decideDataFlow,coalesceQueue,clearQueue,syncStatusText,serverErrorMessage,createServerClient,snapshotEvidence} from './server-sync.js';
 const root=document.querySelector('#app'),KEY='hgf-evidence-v1';
 const LOGO_SVG='<svg width="34" height="34" viewBox="0 0 64 64" aria-hidden="true"><path d="M4 32 L32 6 L60 32" fill="none" stroke="#E67E22" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 30 V54 a2 2 0 0 0 2 2 H50 a2 2 0 0 0 2-2 V30" fill="none" stroke="#0F8A56" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="32" cy="29" r="4.5" fill="#122A3A"/><g stroke="#122A3A" stroke-width="3.5" stroke-linecap="round" fill="none"><path d="M32 35 L25 27"/><path d="M32 35 L39 27"/><path d="M32 35 V45"/><path d="M32 45 L26 54"/><path d="M32 45 L38 54"/></g></svg>';
@@ -174,14 +174,14 @@ let legalFrom=null; // previous screen to return to from a legal screen: 'welcom
 // data, no analytics, no ads, no tracking, share/feedback/export/delete
 // exactly as implemented. Google sign-in (identity verification only) is
 // described honestly in the Google sign-in section; nothing else is
-// promised. Password recovery by email does NOT exist: email codes verify
-// new accounts only (see 'No account recovery by email').
+// promised. Password recovery by email uses a separate reset code
+// (see 'Password recovery by email'); creation codes never reset.
 const LEGAL_DOCS={
 terms:{title:'Terms of Service',intro:'These terms cover using Har Ghar Fitness. By using the app you agree to them.',sections:[
 {h:'What this app is',p:'Har Ghar Fitness is a self-paced home workout app. It shows workout programs, exercises and guidance included in the app, and records your completed sessions in your fitness account on the Har Ghar Fitness server, keeping a copy on this device so workouts keep working offline.'},
 {h:'Not medical advice',p:'Workouts are self-paced home exercise, not medical advice. Exercise technique in the app has not been independently professionally reviewed — the same warning shown before every workout. If you have a health condition, injury or pain, talk to a doctor before starting.'},
 {h:'Exercise safely',p:'You are responsible for exercising safely. Stop immediately if you feel pain, dizziness, shortness of breath or discomfort, and do not push through pain. Use clear space, good footwear and a stable surface.'},
-{h:'Your account and data',p:'Accounts and workout data are stored on the Har Ghar Fitness server and used only for this app: your name, email and a securely hashed password (or a Google-verified marker, for Google accounts), plus your workouts, preferences and profile. A copy also lives in this browser so the app keeps working offline; when you are signed in, the server copy is the one that counts, and changes sync to it. There is no password recovery by email — if you forget your password, create a new account or continue as a guest. If you sign in with Google, Google verifies your email (see Privacy → Google sign-in). Deleting your account deletes your account and all its data from the server and this device.'},
+{h:'Your account and data',p:'Accounts and workout data are stored on the Har Ghar Fitness server and used only for this app: your name, email and a securely hashed password (or a Google-verified marker, for Google accounts), plus your workouts, preferences and profile. A copy also lives in this browser so the app keeps working offline; when you are signed in, the server copy is the one that counts, and changes sync to it. If you forget your password, use Forgot Password on the login screen: we send a 6-digit code to your email, and entering it lets you set a new password. Codes expire in 10 minutes. If you sign in with Google, Google verifies your email (see Privacy → Google sign-in). Deleting your account deletes your account and all its data from the server and this device.'},
 {h:'Google sign-in',p:'If you sign in with Google, Google verifies your email (see Privacy → Google sign-in), and Google accounts are subject to Google’s terms of service in addition to these terms.'},
 {h:'Content in the app',p:'Program and exercise data comes with the app. Some days are preview only and some exercise demonstrations are unavailable; those steps are labelled honestly and are never recorded as done.'},
 {h:'Changes',p:'These terms may change when the app changes. The version on this screen is the one that applies to the build you are using.'}]},
@@ -191,7 +191,7 @@ privacy:{title:'Privacy Policy',intro:'Your account and workout data are stored 
 {h:'What is shared',p:'Your account and workout data are stored on the Har Ghar Fitness server for your account only. There is no analytics, no advertising, no tracking and no third-party data sharing. Your data is not sold or shared with anyone. Google sign-in only verifies your email (see ‘Google sign-in’ above) — Google never receives your fitness data.'},
 {h:'Share and Feedback need your tap',p:'Share opens your device share sheet only when you tap it. Feedback opens WhatsApp to +919905166009 only when you tap it — nothing is sent automatically.'},
 {h:'Export and delete',p:'Export downloads a file with your data to this device. Delete local data removes workout history and preferences from this device. Delete account (Settings, signed in) deletes your account and all its data from the server and this device, and signs you out.'},
-{h:'No account recovery by email',p:'There is no password reset by email: email codes are used only to verify new accounts. A forgotten password means a new account or continuing as a guest.'}]}};
+{h:'Password recovery by email',p:'If you forget your password, use Forgot Password on the login screen. We send a 6-digit code to your email; entering the code lets you set a new password. Codes expire in 10 minutes and stop working after 5 wrong tries. Google-only accounts cannot reset by email — use Continue with Google instead.'}]}};
 
 function legalScreen(doc){
   const d=LEGAL_DOCS[doc];
@@ -453,7 +453,7 @@ const MENU_ICONS={
 function menuRow(title,sub,id,icon){return btn(`<span class="menu-icon ${icon}">${MENU_ICONS[icon]}</span><span class="grow"><b>${title}</b><small>${sub}</small></span><span class="menu-chev">›</span>`,'settingsSub','menu-row',`data-id="${id}"`)}
 function settings(){
  const acc=displayAccount();
- return `<header class="header settings-header"><span class="brand-mark" aria-hidden="true">${LOGO_SVG}</span><h1 class="brand-title"><span>Har Ghar</span><span class="brand-green">Fitness</span></h1><span class="header-gear" aria-hidden="true">${MENU_ICONS.gear}</span></header>`+`<main class="page settings-page"><h1 class="page-h1">Settings</h1><section class="settings-card profile-card"><span class="profile-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></span><div class="grow">${acc?`<h2>${esc(acc.name)}</h2><p class="muted">${esc(acc.email)} · ${serverSession?esc(syncStatusLine()):'Account on this device'}</p><span class="profile-pill">Account</span>${acc.googleVerified?'<span class="profile-pill google-pill">Google-verified</span>':''}`:`<h2>My profile</h2><p class="muted">Guest — sign in to save workouts on the server</p><span class="profile-pill">Guest</span>`}</div></section><section class="settings-card menu-list">${menuRow('Workout Settings','Rest time, sessions per week, sounds','workout','dumbbell')}${menuRow('General Settings','Appearance: Light or Midnight','general','gear')}${menuRow('Voice Options','Spoken cues and volume','voice','speaker')}${menuRow('Backup & data',acc?`Signed in as ${esc(acc.name)}`:'Guest — workouts stay on this device','backup','shield')}</section><section class="settings-card menu-list">${acc?btn(`<span class="menu-icon gear">${MENU_ICONS.gear}</span><span class="grow"><b>Log out</b><small>${serverSession?'Signs you out on this device and the server':'Clears the session only — your data stays on this device'}</small></span><span class="menu-chev">›</span>`,'logout','menu-row')+btn(`<span class="menu-icon gear">${MENU_ICONS.gear}</span><span class="grow"><b>Switch account</b><small>Back to the welcome screen</small></span><span class="menu-chev">›</span>`,'switchAccount','menu-row')+btn(`<span class="menu-icon shield">${MENU_ICONS.shield}</span><span class="grow"><b>Delete account</b><small>${serverSession?'Deletes your account and all its data from the server and this device':'Removes the account record only — history stays until Delete local data'}</small></span><span class="menu-chev">›</span>`,'deleteAccount','menu-row danger-row'):btn(`<span class="menu-icon shield">${MENU_ICONS.shield}</span><span class="grow"><b>Log in / Sign up</b><small>Accounts and workouts are stored on the fitness server</small></span><span class="menu-chev">›</span>`,'welcomeGate','menu-row')}${btn(`<span class="menu-icon share">${MENU_ICONS.share}</span><span class="grow"><b>Share Har Ghar Fitness</b><small>Send the app link to someone</small></span><span class="menu-chev">›</span>`,'share','menu-row')}<a class="menu-row" href="https://wa.me/919905166009" target="_blank" rel="noopener"><span class="menu-icon chat">${MENU_ICONS.chat}</span><span class="grow"><b>Feedback</b><small>WhatsApp support: +919905166009</small></span><span class="menu-chev">›</span></a>${btn(`<span class="menu-icon shield">${MENU_ICONS.shield}</span><span class="grow"><b>Terms &amp; Privacy</b><small>Terms of Service and Privacy Policy</small></span><span class="menu-chev">›</span>`,'openLegal','menu-row','data-doc="terms"')}</section><footer class="build-details"><b>Har Ghar Fitness · Version 5.9</b><p>Your accounts and workouts are stored on the fitness server.</p></footer></main>`+nav();
+ return `<header class="header settings-header"><span class="brand-mark" aria-hidden="true">${LOGO_SVG}</span><h1 class="brand-title"><span>Har Ghar</span><span class="brand-green">Fitness</span></h1><span class="header-gear" aria-hidden="true">${MENU_ICONS.gear}</span></header>`+`<main class="page settings-page"><h1 class="page-h1">Settings</h1><section class="settings-card profile-card"><span class="profile-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></span><div class="grow">${acc?`<h2>${esc(acc.name)}</h2><p class="muted">${esc(acc.email)} · ${serverSession?esc(syncStatusLine()):'Account on this device'}</p><span class="profile-pill">Account</span>${acc.googleVerified?'<span class="profile-pill google-pill">Google-verified</span>':''}`:`<h2>My profile</h2><p class="muted">Guest — sign in to save workouts on the server</p><span class="profile-pill">Guest</span>`}</div></section><section class="settings-card menu-list">${menuRow('Workout Settings','Rest time, sessions per week, sounds','workout','dumbbell')}${menuRow('General Settings','Appearance: Light or Midnight','general','gear')}${menuRow('Voice Options','Spoken cues and volume','voice','speaker')}${menuRow('Backup & data',acc?`Signed in as ${esc(acc.name)}`:'Guest — workouts stay on this device','backup','shield')}</section><section class="settings-card menu-list">${acc?btn(`<span class="menu-icon gear">${MENU_ICONS.gear}</span><span class="grow"><b>Log out</b><small>${serverSession?'Signs you out on this device and the server':'Clears the session only — your data stays on this device'}</small></span><span class="menu-chev">›</span>`,'logout','menu-row')+btn(`<span class="menu-icon gear">${MENU_ICONS.gear}</span><span class="grow"><b>Switch account</b><small>Back to the welcome screen</small></span><span class="menu-chev">›</span>`,'switchAccount','menu-row')+btn(`<span class="menu-icon shield">${MENU_ICONS.shield}</span><span class="grow"><b>Delete account</b><small>${serverSession?'Deletes your account and all its data from the server and this device':'Removes the account record only — history stays until Delete local data'}</small></span><span class="menu-chev">›</span>`,'deleteAccount','menu-row danger-row'):btn(`<span class="menu-icon shield">${MENU_ICONS.shield}</span><span class="grow"><b>Log in / Sign up</b><small>Accounts and workouts are stored on the fitness server</small></span><span class="menu-chev">›</span>`,'welcomeGate','menu-row')}${btn(`<span class="menu-icon share">${MENU_ICONS.share}</span><span class="grow"><b>Share Har Ghar Fitness</b><small>Send the app link to someone</small></span><span class="menu-chev">›</span>`,'share','menu-row')}<a class="menu-row" href="https://wa.me/919905166009" target="_blank" rel="noopener"><span class="menu-icon chat">${MENU_ICONS.chat}</span><span class="grow"><b>Feedback</b><small>WhatsApp support: +919905166009</small></span><span class="menu-chev">›</span></a>${btn(`<span class="menu-icon shield">${MENU_ICONS.shield}</span><span class="grow"><b>Terms &amp; Privacy</b><small>Terms of Service and Privacy Policy</small></span><span class="menu-chev">›</span>`,'openLegal','menu-row','data-doc="terms"')}</section><footer class="build-details"><b>Har Ghar Fitness · Version 5.10</b><p>Your accounts and workouts are stored on the fitness server.</p></footer></main>`+nav();
 }
 function settingsWorkout(){
  const plannedList=plannedDayNames();const plannedIdx=plannedList.map(d=>['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].indexOf(d));const plannedNames=plannedList.join(' · ');
@@ -492,6 +492,22 @@ function authField(label,id,type,opts={}){
  const meter=opts.meter?`<span class="pw-meter" id="pwMeter" aria-live="polite"><span class="pw-seg"></span><span class="pw-seg"></span><span class="pw-seg"></span><span class="pw-seg"></span><span class="pw-label"></span></span>`:'';
  return `<label class="auth-field"><span>${label}</span><span class="auth-input-wrap ${loginIcon?'login-wrap':(opts.variant==='signup'?'signup-wrap':(chip?'has-icon':''))}">${chip}<input id="${id}" type="${type}" ${type==='password'?'autocomplete="'+(opts.auto||'current-password')+'"':type==='email'?'autocomplete="email"':''} placeholder="${esc(opts.placeholder||'')}" value="${val}">${type==='password'?btn('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>','togglePw','auth-show',`data-target="${id}" aria-label="Show or hide password"`):''}</span>${err?`<span class="auth-error">${esc(err)}</span>`:''}${meter}</label>`;
 }
+// Six one-digit boxes for a 6-digit code (v5.10). The first box carries
+// autocomplete="one-time-code" so the OS can offer the SMS code; typing a
+// digit advances, backspace on an empty box goes back, and pasting (or an
+// autofill dump) spreads across the boxes — see the root input/paste/
+// keydown handlers. Boxes start empty; digits in design images are
+// placeholders only, never real codes.
+function otpBoxes(prefix){
+ let boxes='';
+ for(let i=0;i<6;i++)boxes+=`<input class="otp-box" id="${prefix}${i}" type="text" inputmode="numeric" ${i===0?'autocomplete="one-time-code"':''} aria-label="Digit ${i+1} of 6">`;
+ return `<div class="otp-boxes" data-otp-group="${prefix}">${boxes}</div>`;
+}
+function otpCode(prefix){
+ let code='';
+ for(let i=0;i<6;i++){const el=document.querySelector('#'+prefix+i);if(el)code+=el.value||''}
+ return code.replace(/\D/g,'');
+}
 function authWelcome(){
  return `<main class="onboard auth-page">${authLogo()}<h1>Welcome to Har Ghar Fitness</h1><p>Work out at home with guided programs, and track your progress.</p><div class="bottom">${btn('Sign Up','authSignup','primary')}<div style="height:12px"></div>${btn('Continue as Guest','authGuest','secondary')}</div><p class="auth-switch">Already have an account? ${btn('Log In','authLogin','auth-link')}</p><p class="tiny-note">Accounts and workout data are stored on the fitness server. Guest mode needs no account — workouts stay on this device and move to your account when you sign up. Google sign-in only verifies your email.</p><p class="auth-switch">${btn('Terms of Service','openLegal','auth-link','data-doc="terms"')} · ${btn('Privacy Policy','openLegal','auth-link','data-doc="privacy"')}</p></main>`;
 }
@@ -502,7 +518,11 @@ function authSignup(){
  return `<main class="onboard auth-shell"><div>${btn('‹ Back','authBack','','aria-label="Back to welcome"')}</div><div class="auth-card">${authLogo()}<h1>Create Account</h1><p>Join Har Ghar Fitness and start your journey.</p>${authForm.errors.form?`<p class="auth-error">${esc(authForm.errors.form)}</p>`:''}${authField('Full name','signupName','text',{errorKey:'name',placeholder:'Full name',icon:'person',variant:'signup'})}${authField('Email address','signupEmail','email',{errorKey:'email',placeholder:'Email address',icon:'mail',variant:'signup'})}${authField('Password','signupPw','password',{errorKey:'password',placeholder:'Password',auto:'new-password',keepValue:false,icon:'lock',meter:true,variant:'signup'})}${authField('Confirm password','signupConfirm','password',{errorKey:'confirm',placeholder:'Confirm password',auto:'new-password',keepValue:false,icon:'lock',variant:'signup'})}<div class="auth-terms"><label class="auth-check"><input id="signupTerms" type="checkbox" ${authForm.values.terms?'checked':''}> I agree to the</label><span class="legal-links">${btn('Terms','openLegal','auth-link','data-doc="terms"')}<span aria-hidden="true">&amp;</span>${btn('Privacy Policy','openLegal','auth-link','data-doc="privacy"')}</span></div>${authForm.errors.terms?`<p class="auth-error">${esc(authForm.errors.terms)}</p>`:''}<div class="bottom">${btn('Sign Up','submitSignup','primary')}<div class="or-divider"><span>OR</span></div>${btn(GOOGLE_G_SVG+'<span>Continue with Google</span>','googleSignin','secondary google-btn')}</div></div><p class="auth-switch">Already have an account? ${btn('Log In','authLogin','auth-link')}</p><p class="tiny-note">Accounts and workout data are stored on the fitness server. Your password is stored only as a secure hash on the server — never as plain text. New accounts need email verification: we send a 6-digit code to your email.</p></main>`;
 }
 function authForgot(){
- return `<main class="onboard auth-page"><div>${btn('‹ Back','authBack','','aria-label="Back to welcome"')}</div>${authLogo()}<h1>Forgot Password?</h1><p>There is no password reset by email yet: email codes are used only to verify new accounts. If your account uses Google sign-in, use Continue with Google instead.</p><p>These are the only real options:</p><div class="bottom">${btn('Continue as Guest','authGuest','primary')}<div style="height:12px"></div>${btn('Create a new account','authSignup','secondary')}</div><p class="tiny-note">Guest mode keeps your existing workouts and preferences on this device until you sign up. A new account starts fresh; it does not recover the old account.</p></main>`;
+ return `<main class="onboard auth-shell"><div>${btn('‹ Back','authLogin','','aria-label="Back to log in"')}</div><div class="auth-card">${authLogo()}<h1>Forgot Password?</h1><p>Enter your email and we'll send you a 6-digit code to reset your password.</p>${authForm.errors.form?`<p class="auth-error">${esc(authForm.errors.form)}</p>`:''}${authField('Email address','forgotEmail','email',{errorKey:'email',placeholder:'Email address',icon:'mail',variant:'login'})}<div class="bottom">${btn('Send Code','submitForgotRequest','primary')}</div></div><p class="auth-switch">${btn('Back to Log In','authLogin','auth-link')}</p><p class="auth-switch">${btn('Continue as Guest →','authGuest','guest-link')}</p><p class="auth-switch">${btn('Terms of Service','openLegal','auth-link','data-doc="terms"')} · ${btn('Privacy Policy','openLegal','auth-link','data-doc="privacy"')}</p></main>`;
+}
+function authForgotReset(){
+ const email=authForm.values.forgotEmail||'';
+ return `<main class="onboard auth-shell"><div>${btn('‹ Back','forgotBack','','aria-label="Back to email step"')}</div><div class="auth-card">${authLogo()}<h1>Check your email</h1><p>We sent a 6-digit code to ${esc(email)}. Enter it below and choose a new password.</p>${authForm.errors.form?`<p class="auth-error">${esc(authForm.errors.form)}</p>`:''}${otpBoxes('forgotOtp')}${authField('New password','forgotPw','password',{errorKey:'password',placeholder:'New password',auto:'new-password',keepValue:false,icon:'lock',meter:true,variant:'signup'})}${authField('Confirm new password','forgotConfirm','password',{errorKey:'confirm',placeholder:'Confirm new password',auto:'new-password',keepValue:false,icon:'lock',variant:'signup'})}<div class="bottom">${btn('Reset Password','submitForgotReset','primary')}<div style="height:12px"></div>${btn('Send a new code','resendForgotCode','guest-link')}<div style="height:4px"></div>${btn('Use a different email','forgotBack','guest-link')}</div></div><p class="tiny-note">The code expires in 10 minutes. If you did not get it, check spam, then send a new code.</p></main>`;
 }
 const NB_FIGURE_MALE='<svg viewBox="0 0 120 180" aria-hidden="true"><ellipse cx="60" cy="24" rx="12" ry="14" fill="#fff" stroke="#15181F" stroke-width="1.5"/><path d="M46 22 Q45 7 60 7 Q75 7 74 22 Q70 14 60 14 Q50 14 46 22 Z" fill="#15181F"/><rect x="56" y="37" width="8" height="8" fill="#fff"/><path d="M38 54 Q60 45 82 54 L84 100 L36 100 Z" fill="#15181F"/><path d="M41 62 L79 84" stroke="#262B36" stroke-width="13" stroke-linecap="round"/><path d="M79 62 L41 84" stroke="#262B36" stroke-width="13" stroke-linecap="round"/><ellipse cx="82" cy="86" rx="6" ry="4" fill="#F5D9C0"/><ellipse cx="38" cy="86" rx="6" ry="4" fill="#F5D9C0"/><path d="M46 100 L58 100 L54 156 L44 156 Z" fill="#15181F"/><path d="M62 100 L74 100 L76 156 L66 156 Z" fill="#15181F"/><rect x="44" y="152" width="12" height="5" fill="#0B0C0F"/><rect x="64" y="152" width="12" height="5" fill="#0B0C0F"/><path d="M40 157 h18 a6 6 0 0 1 0 12 h-18 a6 6 0 0 1 0 -12 Z" fill="#0B0C0F"/><path d="M62 157 h18 a6 6 0 0 1 0 12 h-18 a6 6 0 0 1 0 -12 Z" fill="#0B0C0F"/></svg>';
 const NB_FIGURE_FEMALE='<svg viewBox="0 0 120 180" aria-hidden="true"><ellipse cx="60" cy="24" rx="12" ry="14" fill="#fff" stroke="#15181F" stroke-width="1.5"/><path d="M46 22 Q45 7 60 7 Q75 7 74 22 Q70 14 60 14 Q50 14 46 22 Z" fill="#15181F"/><path d="M72 10 Q86 12 84 30 Q82 48 76 54 Q70 50 72 34 Q72 18 72 10 Z" fill="#15181F"/><rect x="56" y="37" width="8" height="8" fill="#fff"/><path d="M40 52 Q60 45 80 52 L82 98 L38 98 Z" fill="#15181F"/><path d="M38 52 L50 52 L52 66 L40 66 Z" fill="#15181F"/><path d="M70 52 L82 52 L80 66 L68 66 Z" fill="#15181F"/><path d="M44 64 L76 82" stroke="#F5D9C0" stroke-width="11" stroke-linecap="round"/><path d="M76 64 L44 82" stroke="#F5D9C0" stroke-width="11" stroke-linecap="round"/><ellipse cx="79" cy="84" rx="6" ry="4" fill="#F5D9C0"/><ellipse cx="41" cy="84" rx="6" ry="4" fill="#F5D9C0"/><path d="M46 98 L57 98 L53 156 L45 156 Z" fill="#15181F"/><path d="M63 98 L74 98 L75 156 L67 156 Z" fill="#15181F"/><path d="M41 157 h17 a6 6 0 0 1 0 12 h-17 a6 6 0 0 1 0 -12 Z" fill="#0B0C0F"/><path d="M63 157 h17 a6 6 0 0 1 0 12 h-17 a6 6 0 0 1 0 -12 Z" fill="#0B0C0F"/></svg>';
@@ -585,9 +605,9 @@ function saveNb(){
 }
 function authVerifyOtp(){
  const email=authForm.values.pendingEmail||'';
- return `<main class="onboard auth-page"><div>${btn('‹ Back','authBack','','aria-label="Back to welcome"')}</div>${authLogo()}<h1>Check your email</h1><p>We sent a 6-digit code to ${esc(email)}. Enter it below to finish creating your account.</p>${authForm.errors.form?`<p class="auth-error">${esc(authForm.errors.form)}</p>`:''}<label class="auth-field"><span>6-digit code</span><span class="auth-input-wrap"><input id="otpCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456"></span></label><p class="tiny-note">The code expires in 10 minutes. If you did not get it, check spam, then send a new code.</p><div class="bottom">${btn('Verify','submitOtp','primary')}<div style="height:12px"></div>${btn('Send a new code','resendOtp','secondary')}</div><p class="auth-switch">${btn('Use a different email','authSignup','auth-link')}</p></main>`;
+ return `<main class="onboard auth-shell"><div>${btn('‹ Back','authBack','','aria-label="Back to welcome"')}</div><div class="auth-card">${authLogo()}<h1>Check your email</h1><p>We sent a 6-digit code to ${esc(email)}. Enter it below to finish creating your account.</p>${authForm.errors.form?`<p class="auth-error">${esc(authForm.errors.form)}</p>`:''}${otpBoxes('otp')}<p class="tiny-note">The code expires in 10 minutes. If you did not get it, check spam, then send a new code.</p><div class="bottom">${btn('Verify','submitOtp','primary')}<div style="height:12px"></div>${btn('Send a new code','resendOtp','guest-link')}<div style="height:4px"></div>${btn('Use a different email','authSignup','guest-link')}</div></div><p class="auth-switch">${btn('Terms of Service','openLegal','auth-link','data-doc="terms"')} · ${btn('Privacy Policy','openLegal','auth-link','data-doc="privacy"')}</p></main>`;
 }
-function authScreen(){switch(authView){case 'login':return authLogin();case 'signup':return authSignup();case 'forgot':return authForgot();case 'verifyOtp':return authVerifyOtp();case 'newOnboarding':return nbScreen();case 'googleReturn':return `<main class="onboard auth-page">${authLogo()}<h1>Signing you in with Google…</h1><p class="muted">Verifying your email. This takes a moment.</p></main>`;case 'legal-terms':return legalScreen('terms');case 'legal-privacy':return legalScreen('privacy');default:return authWelcome()}}
+function authScreen(){switch(authView){case 'login':return authLogin();case 'signup':return authSignup();case 'forgot':return authForgot();case 'forgotReset':return authForgotReset();case 'verifyOtp':return authVerifyOtp();case 'newOnboarding':return nbScreen();case 'googleReturn':return `<main class="onboard auth-page">${authLogo()}<h1>Signing you in with Google…</h1><p class="muted">Verifying your email. This takes a moment.</p></main>`;case 'legal-terms':return legalScreen('terms');case 'legal-privacy':return legalScreen('privacy');default:return authWelcome()}}
 // Google button preflight (v5.9 fix for the preview 404 strand): NEVER
 // navigate to a sign-in backend that is not there. The button used to jump
 // straight to google-login.php, which on a host without the backend files
@@ -742,7 +762,7 @@ root.addEventListener('click',async ev=>{const b=ev.target.closest('[data-action
   authForm.errors={form:serverErrorMessage(r.error)};authView='signup';render();return;
  }
  if(a==='submitOtp'){
-  const code=(document.querySelector('#otpCode')?.value||'').replace(/\D/g,'');
+  const code=otpCode('otp');
   if(code.length!==6){authForm.errors={form:'Enter the 6-digit code from your email.'};authView='verifyOtp';render();return}
   const email=authForm.values.pendingEmail||'';
   if(!serverClient){authForm.errors={form:'Server sign-in isn\'t available here. Continue as a guest.'};authView='verifyOtp';render();return}
@@ -756,6 +776,41 @@ root.addEventListener('click',async ev=>{const b=ev.target.closest('[data-action
   const r=await serverClient.resendOtp({email}).catch(()=>({ok:false,error:'network'}));
   if(r.ok){notice='A new code was sent to '+email+'.';authView='verifyOtp';render();return}
   authForm.errors={form:serverErrorMessage(r.error)+(r.retry_after?` Try again in ${r.retry_after} seconds.`:'')};authView='verifyOtp';render();return;
+ }
+ if(a==='forgotBack'){authView='forgot';render();return}
+ if(a==='submitForgotRequest'){
+  const email=normalizeEmail(document.querySelector('#forgotEmail')?.value||'');
+  authForm={values:{forgotEmail:email},errors:{}};
+  if(!validateEmail(email)){authForm.errors={email:'Enter a valid email address.'};authView='forgot';render();return}
+  // v5.10: password accounts live on the server. On a host without the
+  // backend (e.g. the Pages preview) there is no honest local fallback:
+  // say so and offer Guest mode, never a fake code.
+  if(!serverClient){authForm.errors={form:'Server sign-in isn\'t available here. Continue as a guest.'};authView='forgot';render();return}
+  const r=await serverClient.forgotRequest({email}).catch(()=>({ok:false,error:'network'}));
+  if(r.ok){authView='forgotReset';notice='We sent a 6-digit code to '+email+'. Enter it below to set a new password.';render();return}
+  authForm.errors={form:r.error==='email_unavailable'?'Password reset email is not set up yet. Try again later.':r.error==='email_failed'?'We could not send the reset email. Try again.':serverErrorMessage(r.error)+(r.retry_after?` Try again in ${r.retry_after} seconds.`:'')};authView='forgot';render();return;
+ }
+ if(a==='resendForgotCode'){
+  const email=authForm.values.forgotEmail||'';
+  if(!serverClient){authForm.errors={form:'Server sign-in isn\'t available here. Continue as a guest.'};authView='forgotReset';render();return}
+  const r=await serverClient.forgotRequest({email}).catch(()=>({ok:false,error:'network'}));
+  if(r.ok){notice='A new code was sent to '+email+'.';authView='forgotReset';render();return}
+  authForm.errors={form:serverErrorMessage(r.error)+(r.retry_after?` Try again in ${r.retry_after} seconds.`:'')};authView='forgotReset';render();return;
+ }
+ if(a==='submitForgotReset'){
+  const code=otpCode('forgotOtp');
+  const pw=document.querySelector('#forgotPw')?.value||'',confirm=document.querySelector('#forgotConfirm')?.value||'';
+  const email=authForm.values.forgotEmail||'';
+  const errors={};
+  if(code.length!==6)errors.form='Enter the 6-digit code from your email.';
+  else if(!validatePassword(pw))errors.password='Use a new password of at least 8 characters.';
+  else if(pw!==confirm)errors.confirm='Passwords do not match.';
+  authForm={values:{forgotEmail:email},errors};
+  if(Object.keys(errors).length){authView='forgotReset';render();return}
+  if(!serverClient){authForm.errors={form:'Server sign-in isn\'t available here. Continue as a guest.'};authView='forgotReset';render();return}
+  const r=await serverClient.forgotReset({email,code,password:pw}).catch(()=>({ok:false,error:'network'}));
+  if(r.ok){authForm={values:{},errors:{}};authView='login';notice='Your password has been changed. Log in with your new password.';render();return}
+  authForm.errors={form:serverErrorMessage(r.error)};authView='forgotReset';render();return;
  }
  if(a==='mergeDevice'){
   const device=serverMerge?.device||deviceEvidence();serverMerge=null;modal=null;
@@ -819,12 +874,36 @@ root.addEventListener('click',async ev=>{const b=ev.target.closest('[data-action
 });
 root.addEventListener('input',ev=>{
  if(ev.target.id==='search')document.querySelector('#picker').innerHTML=pickerRows(ev.target.value);
- if(ev.target.id==='signupPw'){const m=document.querySelector('#pwMeter');if(m){const s=passwordStrength(ev.target.value);m.className='pw-meter '+s.label.toLowerCase();m.querySelectorAll('.pw-seg').forEach((seg,i)=>seg.classList.toggle('on',i<s.score));const lab=m.querySelector('.pw-label');if(lab)lab.textContent=ev.target.value?((s.label==='Strong'?'Strong':s.label)+' password'):''}}
+ if(ev.target.id==='signupPw'||ev.target.id==='forgotPw'){const m=document.querySelector('#pwMeter');if(m){const s=passwordStrength(ev.target.value);m.className='pw-meter '+s.label.toLowerCase();m.querySelectorAll('.pw-seg').forEach((seg,i)=>seg.classList.toggle('on',i<s.score));const lab=m.querySelector('.pw-label');if(lab)lab.textContent=ev.target.value?((s.label==='Strong'?'Strong':s.label)+' password'):''}}
+ // OTP boxes (v5.10): typing a digit pops the box and advances; a
+ // multi-digit value (autofill dump) spreads across the following boxes.
+ if(ev.target.classList&&ev.target.classList.contains('otp-box')){
+  const box=ev.target,group=box.closest('[data-otp-group]');if(group){
+   const boxes=[...group.querySelectorAll('.otp-box')],idx=boxes.indexOf(box);
+   const v=box.value.replace(/\D/g,'');
+   if(v.length>1){for(let k=0;k<v.length&&idx+k<boxes.length;k++){boxes[idx+k].value=v[k];boxes[idx+k].classList.add('otp-filled')}boxes[Math.min(idx+v.length,boxes.length-1)].focus()}
+   else{box.value=v;if(v){box.classList.add('otp-filled');box.classList.remove('otp-pop');void box.offsetWidth;box.classList.add('otp-pop');const next=boxes[idx+1];if(next)next.focus()}else box.classList.remove('otp-filled')}
+  }
+ }
  if(ev.target.id==='trainingSearch'){trainingQuery=ev.target.value;applyTrainingSearch()}
  if(ev.target.id==='discoverSearch'){applyDiscoverFilter()}
  if(ev.target.id==='nbWeight'&&nb)nb.answers.weightKg=ev.target.value;
  if(ev.target.id==='nbHeight'&&nb)nb.answers.heightCm=ev.target.value;
  if(ev.target.id==='volumeRange'){const lab=document.querySelector('#volumePct');if(lab)lab.textContent=Math.round(+ev.target.value*100)+'%'}
+});
+root.addEventListener('paste',ev=>{
+ const t=ev.target;if(!(t.classList&&t.classList.contains('otp-box')))return;
+ const text=(ev.clipboardData?.getData('text')||'').replace(/\D/g,'');if(!text)return;
+ ev.preventDefault();
+ const boxes=[...t.closest('[data-otp-group]').querySelectorAll('.otp-box')],idx=boxes.indexOf(t);
+ for(let k=0;k<text.length&&idx+k<boxes.length;k++){boxes[idx+k].value=text[k];boxes[idx+k].classList.add('otp-filled')}
+ boxes[Math.min(idx+text.length,boxes.length-1)].focus();
+});
+root.addEventListener('keydown',ev=>{
+ const t=ev.target;if(!(t.classList&&t.classList.contains('otp-box')))return;
+ const boxes=[...t.closest('[data-otp-group]').querySelectorAll('.otp-box')],idx=boxes.indexOf(t);
+ if(ev.key==='Backspace'&&!t.value){const prev=boxes[idx-1];if(prev){ev.preventDefault();prev.focus();prev.value='';prev.classList.remove('otp-filled')}}
+ if(ev.key==='ArrowLeft'||ev.key==='ArrowRight'){const next=boxes[idx+(ev.key==='ArrowRight'?1:-1)];if(next)next.focus()}
 });
 root.addEventListener('change',ev=>{const e=ev.target;if(e.dataset.pref){const k=e.dataset.pref;let v=e.type==='checkbox'?e.checked:e.value;if(['volume','frequency','rest'].includes(k))v=Number(v);if(k==='rest'&&(!Number.isFinite(v)||v<1||v>600)){e.value=prefs.rest;return}prefs[k]=v;if(k==='voice'&&!v)silence();persist()}if(e.dataset.step!==undefined){const v=+e.value;if(Number.isFinite(v)&&v>=1&&v<=3600)draft[+e.dataset.step].value=v;else e.value=draft[+e.dataset.step].value}if(e.id==='nbPrefer'&&nb){nb.answers.preferNotToSay=e.checked;if(e.checked){nb.answers.weightKg='';nb.answers.heightCm=''}render()}});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){engine.interrupt();silence();persist()}});window.addEventListener('pagehide',()=>{engine.interrupt();persist()});window.addEventListener('resize',nbPlaceFocusLinks);
