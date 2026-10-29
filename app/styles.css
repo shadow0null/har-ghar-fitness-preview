@@ -183,7 +183,7 @@ html[data-theme=midnight] .calendar .preview-day{background:transparent}
 .training-page .banner p{max-width:92%}
 .banner-script{position:relative;z-index:1;font-family:'Comic Sans MS','Segoe Script',cursive;font-size:23px;line-height:1.05;color:#B7E4C7;transform:rotate(-3deg);margin-bottom:14px}
 /* Weekly rhythm + focus, one clean white card under the hero. */
-.rhythm-card{background:#fff;border-radius:18px;padding:18px 16px;box-shadow:0 8px 22px rgba(20,36,51,.08);margin:18px 0 24px}
+.rhythm-card{background:var(--surface);border-radius:18px;padding:18px 16px;box-shadow:0 8px 22px rgba(20,36,51,.08);margin:18px 0 24px}
 .rhythm-card .goal{background:transparent;border:0;box-shadow:none;padding:0;margin:0}
 .rhythm-card h2{margin:18px 0 10px}
 .week span{width:40px;height:40px;background:#0F8A56;color:#fff;border-radius:50%;border:2px solid #0F8A56;line-height:36px;font-size:13px}
@@ -239,10 +239,10 @@ html[data-theme=midnight] .calendar .preview-day{background:transparent}
 .level-pill.intermediate{background:#E3F0FD;color:#2478B5}
 .level-pill.advanced{background:#FDEBD7;color:#9A5B00}
 .focus-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.focus-tile{display:flex;flex-direction:column;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 8px;min-height:44px}
+.focus-tile{display:flex;flex-direction:column;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 8px;min-height:44px}
 .focus-icon{width:64px;height:64px;border-radius:50%;background:#E7F6EC;color:#0F8A56;display:flex;align-items:center;justify-content:center}
 .focus-icon svg{width:36px;height:36px}
-.module-row-head{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:12px}
+.module-row-head{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:12px}
 .module-icon{width:48px;height:48px;border-radius:50%;background:#0F8A56;color:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 48px}
 .module-icon svg{width:26px;height:26px}
 .module-row-head .grow{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
@@ -274,3 +274,67 @@ html[data-theme=midnight] .calendar .preview-day{background:transparent}
 /* Bottom nav: proper SVG icons above labels. */
 .nav b svg{width:24px;height:24px;display:block}
 .nav b{font-size:13px}
+
+/* ============ Settings + Discover + Training advanced redesign ============ */
+/* Settings: profile card. */
+.profile-card{display:flex;align-items:center;gap:14px}
+.profile-avatar{width:56px;height:56px;flex:0 0 56px;border-radius:50%;background:#0F8A56;color:#fff;display:grid;place-items:center}
+.profile-avatar svg{width:30px;height:30px}
+.profile-card h2{margin:0}
+.profile-card p{margin:2px 0 0}
+.profile-card .grow{flex:1;min-width:0}
+/* Settings: section headings with a proper icon. */
+.section-head{display:flex;align-items:center;gap:10px}
+.section-icon{width:28px;height:28px;flex:0 0 28px;color:#0F8A56;display:inline-flex}
+.section-icon svg{width:28px;height:28px}
+/* Settings: appearance tiles with sun/moon icons and a green checkmark. */
+.theme-tiles{display:flex;gap:12px}
+.theme-tile{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 8px;border-radius:16px;border:2px solid var(--line);background:var(--canvas);font-weight:800;position:relative;min-height:96px}
+.theme-tile.selected{border-color:#0F8A56;background:#E7F6EC}
+html[data-theme=midnight] .theme-tile.selected{background:#1B3448}
+.theme-tile-icon{width:32px;height:32px;color:#0F8A56;display:block}
+.theme-tile-icon svg{width:32px;height:32px}
+.theme-check{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:#0F8A56;color:#fff;display:grid;place-items:center;font-size:15px}
+/* Settings: green toggle switches, 44px+ rows. */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px;font-weight:650;color:var(--text)}
+.switch{position:relative;width:52px;height:32px;flex:0 0 52px}
+.switch input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer;z-index:1}
+.switch i{position:absolute;inset:0;background:#D5DDD8;border-radius:99px;transition:background .2s}
+.switch i::after{content:'';position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.25);transition:transform .2s}
+.switch input:checked + i{background:#0F8A56}
+.switch input:checked + i::after{transform:translateX(20px)}
+.switch input:focus-visible + i{outline:3px solid #F5870B;outline-offset:3px}
+/* Settings: volume row with live percent, wide audio dropdown (never truncated). */
+.volume-row{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.volume-row input[type=range]{flex:1;min-width:0;accent-color:#0F8A56}
+#volumePct{font-weight:800;color:#0F8A56;min-width:48px;text-align:right}
+.field.wide{flex-direction:column;align-items:stretch}
+.field.wide select{max-width:none;width:100%}
+/* Settings: steppers for rest time and sessions per week. */
+.stepper-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px;font-weight:650;color:var(--text)}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper b{min-width:104px;text-align:center;font-size:14px}
+.step-btn{width:44px;height:44px;min-width:44px;border-radius:50%;background:var(--soft);color:var(--blue);font-size:22px;font-weight:800;padding:0;display:grid;place-items:center}
+.full{width:100%}
+/* Settings: build details footer. */
+.build-details{margin:24px 0 8px;text-align:center}
+.build-details p{font-size:13px}
+/* Discover: filter chips row. */
+.discover-chips{margin:6px 0 4px}
+/* Discover: Sleep & Stretch rows — moon icon, title, minutes, Ref, Start. */
+.sleep-rows{display:grid;gap:12px}
+.sleep-row{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 16px;box-shadow:0 4px 14px rgba(20,42,68,.05)}
+.sleep-row .grow{flex:1;min-width:0}
+.sleep-row h3{font-size:15px;margin:0 0 2px}
+.sleep-moon{width:48px;height:48px;flex:0 0 48px;border-radius:50%;background:#E7F6EC;color:#0F8A56;display:grid;place-items:center;font-size:24px}
+.sleep-start{background:#0F8A56;color:#fff;border-radius:99px;padding:12px 22px;font-weight:800;min-height:44px}
+.focus-tile small{font-size:13px;color:var(--muted);font-weight:650}
+/* Player: session name header (Discover entry, or program title). */
+.player-session-name{text-align:center;font-size:13px;font-weight:800;color:var(--muted);padding:6px 16px 0}
+/* Training: weekly progress bar under the rhythm circles. */
+.rhythm-progress{height:6px;background:var(--soft);border-radius:99px;overflow:hidden;margin-top:14px}
+.rhythm-progress>div{height:100%;background:#0F8A56;border-radius:99px}
+/* Training: focus heading with a small pill on the right. */
+.focus-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:24px 0 4px}
+.focus-head h2{margin:0}
+.focus-pill{font-size:13px;font-weight:700;color:var(--muted);background:var(--canvas);border:1px solid var(--line);padding:7px 14px;border-radius:99px;white-space:nowrap}

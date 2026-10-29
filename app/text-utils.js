@@ -150,6 +150,14 @@ export function labelFor(key) {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+/** Real workout count for a Body Focus collection tile: the number of
+ * catalog entries listed in that collection in reference.json. Returns
+ * null when the collection has no entry list, so the tile shows no count
+ * rather than an invented one. */
+export function focusTileCount(collection) {
+  return Array.isArray(collection?.workoutIds) ? collection.workoutIds.length : null;
+}
+
 /** Card title for a Discover entry. A neutralised ("General Fitness") entry
  * is disambiguated with its real level, so the three v_lines / man_boobs
  * cards (Beginner / Intermediate / Advanced) no longer look identical. */
