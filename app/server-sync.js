@@ -1,11 +1,13 @@
-// Har Ghar Fitness — server sync layer (v5.10).
+// Har Ghar Fitness — server sync layer (v5.10; merge + queue rules v5.17).
 //
 // Pure logic + a thin fetch client. No DOM here, so node tests can import
 // this file directly. The app (app.js) owns its own state; this module
-// decides WHAT to do (upload / download / ask / queue) and talks to the
-// server endpoints. It never invents data and never silently overwrites:
-// when device history and server history both exist and differ, the app
-// must ask the user (see decideDataFlow) and apply only the chosen side.
+// decides WHAT to do (upload / download / merge / ask / queue) and talks to
+// the server endpoints. It never invents data and never silently overwrites:
+// finished sessions are immutable and carry uuid ids, so histories merge by
+// id (union — every session on either side survives, nothing is deleted or
+// overwritten). The app asks the user ONLY for a true conflict: the same
+// session id with different content on the two sides (see decideDataFlow).
 //
 // Deploy layout matters: the PHP endpoints live at the WEB ROOT
 // (https://fitness.studydesk.fun/auth-me.php, ...), while the app lives
@@ -35,15 +37,67 @@ export function historiesDiffer(deviceData, serverData) {
 // Returns: 'upload' (no server copy yet — migrate device data),
 // 'download' (device has no history — take the server copy),
 // 'none' (histories agree — keep the device copy for now),
-// 'choice' (both sides have different history — the app MUST ask).
+// 'merge' (histories are compatible: every session id shared by both sides
+// carries identical content, so the union of both sides loses nothing —
+// merge automatically, no modal),
+// 'choice' (true conflict: the same session id with different content on the
+// two sides — the app MUST ask, because no automatic rule can pick a winner).
 export function decideDataFlow({deviceData = {}, serverData = null} = {}) {
   if (!serverData) return 'upload';
   const deviceHistory = Array.isArray(deviceData.history) ? deviceData.history : [];
   const serverHistory = Array.isArray(serverData.history) ? serverData.history : [];
   if (deviceHistory.length === 0 && serverHistory.length > 0) return 'download';
-  if (!historiesDiffer(deviceData, serverData)) return 'none';
+  if (!historiesDiffer(deviceData, serverData)) {
+    return findHistoryConflicts(deviceHistory, serverHistory).length === 0 ? 'none' : 'choice';
+  }
   if (serverHistory.length === 0) return 'upload';
+  if (findHistoryConflicts(deviceHistory, serverHistory).length === 0) return 'merge';
   return 'choice';
+}
+
+// ---- Union merge (v5.17) ------------------------------------------------------
+// Sessions are immutable once recorded, so a session id identifies one fixed
+// record. Merging by id is therefore additive: a session present on either
+// side survives, and no session is ever overwritten or deleted by a merge.
+// Non-history fields of the merged document come from the device (the copy
+// in hand); the app states that plainly when a merge keeps device settings
+// over differing server settings, because whole-document upload already
+// behaved that way for the 'upload' flow.
+function sessionFingerprint(s) {
+  return JSON.stringify(s ?? null);
+}
+export function findHistoryConflicts(deviceHistory, serverHistory) {
+  const byId = new Map();
+  for (const s of (Array.isArray(deviceHistory) ? deviceHistory : [])) {
+    if (s && typeof s === 'object' && s.id != null) byId.set(String(s.id), s);
+  }
+  const conflicts = [];
+  for (const s of (Array.isArray(serverHistory) ? serverHistory : [])) {
+    if (!s || typeof s !== 'object' || s.id == null) continue;
+    const d = byId.get(String(s.id));
+    if (d && sessionFingerprint(d) !== sessionFingerprint(s)) conflicts.push(String(s.id));
+  }
+  return conflicts;
+}
+export function unionHistories(deviceHistory, serverHistory) {
+  const seen = new Map();
+  const keyOf = (s) => (s && typeof s === 'object' && s.id != null)
+    ? 'id:' + String(s.id)
+    : 'fp:' + sessionFingerprint(s);
+  for (const s of [...(Array.isArray(deviceHistory) ? deviceHistory : []), ...(Array.isArray(serverHistory) ? serverHistory : [])]) {
+    if (!s || typeof s !== 'object') continue;
+    const k = keyOf(s);
+    if (!seen.has(k)) seen.set(k, s);
+  }
+  const merged = [...seen.values()];
+  merged.sort((a, b) => {
+    const fa = String(a?.finishedAt || ''), fb = String(b?.finishedAt || '');
+    return fa < fb ? -1 : fa > fb ? 1 : 0;
+  });
+  return merged;
+}
+export function mergeEvidence(deviceData, serverData) {
+  return {...(deviceData || {}), history: unionHistories(deviceData?.history, serverData?.history)};
 }
 
 // ---- Offline queue (last-write-wins, one pending payload) --------------------
@@ -52,6 +106,35 @@ export function coalesceQueue(queue, payload) {
 }
 export function clearQueue() {
   return {pending: null, dirty: false};
+}
+
+// ---- Persisted pending payload (v5.17) ---------------------------------------
+// The in-memory queue is lost when the app closes, so the pending payload is
+// also written to storage under the app's own key family. The app wires
+// these to localStorage; tests pass a fake store. A restored payload is only
+// ever flushed for the same server session that queued it: logout, account
+// switch, account delete and Delete-local-data all clear it, and the sign-in
+// sync supersedes it (the sign-in upload/merge already carries the current
+// device evidence), so a stale payload can never clobber merged data.
+export const SYNC_PENDING_KEY = 'hgf-evidence-v1-sync-pending';
+export function savePendingQueue(store, payload) {
+  try {
+    if (!store) return;
+    if (payload == null) store.removeItem(SYNC_PENDING_KEY);
+    else store.setItem(SYNC_PENDING_KEY, JSON.stringify(payload));
+  } catch {}
+}
+export function loadPendingQueue(store) {
+  try {
+    if (!store) return null;
+    const raw = store.getItem(SYNC_PENDING_KEY);
+    if (!raw) return null;
+    const v = JSON.parse(raw);
+    return v && typeof v === 'object' ? v : null;
+  } catch { return null; }
+}
+export function clearPendingQueue(store) {
+  try { store?.removeItem(SYNC_PENDING_KEY); } catch {}
 }
 
 // ---- Plain-words sync status (no jargon) --------------------------------------

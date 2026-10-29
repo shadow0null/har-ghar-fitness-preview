@@ -865,3 +865,25 @@ html[data-theme=midnight] .ob-dots i{background:#3d5a75}
 .card-copy small{margin-right:8px}
 .editor-row .controls button{background:var(--canvas);color:var(--ink);border:1px solid var(--line);font-weight:800}
 .editor-row .controls button:disabled{opacity:.35;border-style:dashed;background:transparent;color:var(--muted)}
+/* v5.17: Training chip rows are single horizontal scroll rows — never wrap,
+   and the last chip scrolls fully into view with end padding. */
+.training-page .chips-scroll{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;padding:2px 21px 11px 0}
+.training-page .chips-scroll .chip{flex:0 0 auto;white-space:nowrap;padding:14px 16px}
+/* v5.17: "Your workouts" cover cards — the photo fills the card width on
+   top, matching the Just For You / Popular Goals cover style. */
+.program-cover-list{display:grid;gap:12px}
+.program-cover-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 4px 14px rgba(20,42,68,.05)}
+.program-cover-card button{width:100%;text-align:left;display:flex;flex-direction:column;gap:8px;background:none;border:0;padding:0;color:inherit}
+.program-cover-card .thumb-stage{width:100%;height:150px;flex:none}
+.program-cover-card .tile{width:100%;height:110px}
+.program-cover-card .grow h3{font-size:15px}
+.program-cover-card .grow small{color:var(--muted);font-size:13px}
+/* v5.17: Challenge cards carry a cover photo on top, like mini cards. */
+.challenge-card .challenge-card-copy{width:100%;display:flex;flex-direction:column;gap:8px;text-align:left;background:none;border:0;padding:0;color:inherit}
+.challenge-card .thumb-stage{width:100%;height:110px;flex:none}
+/* v5.17: player completion per-exercise summary. */
+.completion-exercises{margin-top:16px;text-align:left}
+.completion-exercises h3{font-size:15px;margin:0 0 8px}
+.completion-ex-row{margin-bottom:8px}
+.completion-ex-row .grow b{font-size:14px}
+.completion-ex-row .grow small{color:var(--muted);font-size:13px}

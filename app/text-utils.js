@@ -70,6 +70,53 @@ export function groupConsecutiveSteps(steps) {
   return out;
 }
 
+/** Per-exercise totals from RECORDED sessions only (v5.17).
+ * A session contributes one entry per step with an explicit result: 'done'
+ * adds reps (rep-mode value) or seconds (timed-mode value), 'skipped'
+ * counts as skipped. Steps with no recorded result add nothing — a missing
+ * result is never guessed as done or skipped. Preview sessions are never
+ * in history, but are skipped defensively. Partial sessions (completed
+ * false) count: their done steps really happened; streak and weekly-goal
+ * filters stay completed-only elsewhere. Within one session an exercise
+ * that appears twice is reported once, with its done/skipped counts and
+ * totals combined. Sorted by most done, then by exercise id for a stable
+ * order. Every number comes from recorded results — nothing is estimated
+ * or invented here. */
+export function aggregateExerciseStats(history) {
+  const byId = new Map();
+  for (const s of (Array.isArray(history) ? history : [])) {
+    if (!s || typeof s !== 'object' || s.preview) continue;
+    const steps = Array.isArray(s.steps) ? s.steps : [];
+    const results = s.results || {};
+    const perSession = new Map();
+    for (let i = 0; i < steps.length; i++) {
+      const step = steps[i];
+      if (!step || step.exerciseId == null) continue;
+      const r = results[i] ?? results[String(i)];
+      if (r !== 'done' && r !== 'skipped') continue;
+      const id = String(step.exerciseId);
+      let occ = perSession.get(id);
+      if (!occ) { occ = { done: 0, skipped: 0, reps: 0, seconds: 0 }; perSession.set(id, occ); }
+      if (r === 'done') {
+        occ.done++;
+        if (step.mode === 'reps') occ.reps += Number(step.value) || 0;
+        else if (step.mode === 'timed') occ.seconds += Number(step.value) || 0;
+      } else occ.skipped++;
+    }
+    for (const [id, occ] of perSession) {
+      let row = byId.get(id);
+      if (!row) { row = { exerciseId: id, done: 0, skipped: 0, reps: 0, seconds: 0, sessions: [] }; byId.set(id, row); }
+      row.done += occ.done; row.skipped += occ.skipped; row.reps += occ.reps; row.seconds += occ.seconds;
+      row.sessions.push({
+        sessionId: s.id ?? null, finishedAt: s.finishedAt || null, completed: !!s.completed,
+        programId: s.programId ?? null, dayId: s.dayId ?? null,
+        done: occ.done, skipped: occ.skipped, reps: occ.reps, seconds: occ.seconds,
+      });
+    }
+  }
+  return [...byId.values()].sort((a, b) => (b.done - a.done) || (a.exerciseId < b.exerciseId ? -1 : 1));
+}
+
 /** Steps whose exercise belongs to a different focus area than the program
  * (audit #37). Name-based and deliberately conservative: only leg moves in a
  * non-Legs program and push-ups in an Abs/Legs program are flagged — push-ups
