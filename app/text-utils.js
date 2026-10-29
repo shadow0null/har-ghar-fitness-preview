@@ -257,7 +257,7 @@ export function equipmentHints(introduce, tips) {
 /** Animation status line for a program step row. Uses only the joined media
  * record — an exercise with no licensed Lottie file is preview-only. */
 export function animationStatus(e) {
-  return e?.media?.format === 'lottie' ? 'licensed animation' : 'no animation · preview-only';
+  return e?.media?.format === 'lottie' ? 'Animation' : 'No animation';
 }
 
 /** True when the source has no name, animation or guidance for this
@@ -352,7 +352,7 @@ const LEVEL_NUM = { beginner: 1, intermediate: 2, advanced: 3 };
 export function discoverRoutineFor(entry, programIds) {
   const id = String(entry?.id || '');
   if (programIds?.includes(id)) {
-    return { programId: id, day: 0, focus: 'program', note: 'This catalog entry is the bundled program itself.' };
+    return { programId: id, day: 0, focus: 'program', note: 'This entry is the program itself.' };
   }
   // Whole-word tokens only: substring matching misfires ("warm_up" contains
   // "arm", "burning" contains "burn" only as a token check, etc.).
@@ -375,8 +375,8 @@ export function discoverRoutineFor(entry, programIds) {
     day: 0,
     focus: focusName,
     note: isStretch
-      ? 'No stretch routine is bundled, so this plays the closest full-body routine — the catalog’s own sequence is not in the source data.'
-      : 'The catalog’s own exercise sequence is not in the source data, so this plays the closest bundled routine.',
+      ? 'No stretch routine is available, so this plays the closest full-body routine.'
+      : 'This entry doesn’t have its own sequence, so it plays the closest routine.',
   };
 }
 
