@@ -249,7 +249,7 @@ export function equipmentHints(introduce, tips) {
   const tipText = (tips || []).map((t) => (typeof t === 'string' ? t : t.text || '')).join(' ').toLowerCase();
   const setup = SETUP_WORDS.filter((w) => intro.includes(w));
   const optional = [];
-  if (/\bdumbbell\b/.test(tipText) && !/\bdumbbell\b/.test(intro)) optional.push('dumbbell (optional progression only)');
+  if (/\bdumbbell\b/.test(tipText) && !/\bdumbbell\b/.test(intro)) optional.push('dumbbell');
   if (/\bdumbbell\b/.test(intro)) setup.push('dumbbell');
   return { setup, optional };
 }
