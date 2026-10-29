@@ -96,8 +96,26 @@ export function unionHistories(deviceHistory, serverHistory) {
   });
   return merged;
 }
+export function unionMeasurements(deviceMs, serverMs) {
+  // Union by date; on the same date the later-updated entry wins, so a
+  // correction on either side survives and nothing is ever deleted by a sync.
+  // Entries are assumed normalized (see normalizeMeasurement); anything
+  // without a date string is skipped rather than crashing the merge.
+  const byDate = new Map();
+  const put = (m) => {
+    if (!m || typeof m !== 'object' || typeof m.date !== 'string') return;
+    const cur = byDate.get(m.date);
+    if (!cur || (Number(m.updatedAt || 0) > Number(cur.updatedAt || 0))) byDate.set(m.date, m);
+  };
+  for (const m of (Array.isArray(deviceMs) ? deviceMs : [])) put(m);
+  for (const m of (Array.isArray(serverMs) ? serverMs : [])) put(m);
+  return [...byDate.values()].sort((a, b) => {
+    if (a.date !== b.date) return a.date < b.date ? 1 : -1;
+    return (b.updatedAt || 0) - (a.updatedAt || 0);
+  });
+}
 export function mergeEvidence(deviceData, serverData) {
-  return {...(deviceData || {}), history: unionHistories(deviceData?.history, serverData?.history)};
+  return {...(deviceData || {}), history: unionHistories(deviceData?.history, serverData?.history), measurements: unionMeasurements(deviceData?.measurements, serverData?.measurements)};
 }
 
 // ---- Offline queue (last-write-wins, one pending payload) --------------------
@@ -207,6 +225,10 @@ export function createServerClient({fetchImpl, base}) {
     getData: () => request('/data-get.php'),
     putData: (data) => request('/data-put.php', {method: 'POST', body: {data}}),
     deleteAccount: () => request('/account-delete.php', {method: 'POST'}),
+    pushKey: () => request('/push-key.php'),
+    pushSubscribe: (sub) => request('/push-subscribe.php', {method: 'POST', body: sub}),
+    pushUnsubscribe: (body) => request('/push-unsubscribe.php', {method: 'POST', body}),
+    pushTest: (body) => request('/push-test.php', {method: 'POST', body: body || {}}),
   };
 }
 
@@ -215,6 +237,7 @@ export function snapshotEvidence(s) {
   return {
     prefs: s.prefs || {},
     history: s.history || [],
+    measurements: s.measurements || [],
     edits: s.edits || {},
     custom: s.custom || [],
     onboarded: !!s.onboarded,

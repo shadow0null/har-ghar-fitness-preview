@@ -911,3 +911,43 @@ html[data-theme=midnight] .ob-dots i{background:#3d5a75}
 .contact-screen .follow-card .menu-icon svg{width:26px;height:26px}
 .contact-screen .follow-card b{font-size:17px}
 .contact-screen .follow-card small{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+
+.reminder-note{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14px;font-weight:650;color:var(--text);margin:0 0 14px}
+.day-chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.day-chips .chip{padding:10px 0;min-width:44px;text-align:center}
+
+/* Reference-grade polish pass — bolder Training / Discover / Report /
+   Settings within the existing design system. No new features, no fake
+   controls, no restyle of the Contact screen, no version/cache change.
+   Appended last so these rules win at equal specificity. */
+/* Training: bolder Weekly Goal card (border + deeper shadow; the 24px
+   goal title and done/next strip rules are pinned by tests, untouched). */
+.rhythm-card{border:1px solid var(--line);box-shadow:0 16px 34px rgba(20,42,68,.16)}
+.training-page h2{font-size:24px}
+/* Training: bigger Challenge hero cards (thumb height stays 110px — pinned). */
+.challenge-card{min-width:272px;max-width:272px;padding:20px}
+.challenge-card h3{font-size:20px}
+/* Training: taller Your-workouts cover photos, slightly larger titles. */
+.program-cover-card .thumb-stage{height:168px}
+.program-cover-card .grow h3{font-size:16px}
+/* Discover: taller photo covers (row-cards keep their 72px covers),
+   larger card titles, stronger section headings. */
+.discovery .card:not(.row-card) .cover{height:148px}
+.discovery .card h3{font-size:16px}
+.discover-section .section-heading h2{font-size:24px}
+/* Discover: dividers between the module / level / duration chip groups. */
+.chip-divider{flex:0 0 auto;width:1px;align-self:stretch;background:var(--line);margin:2px 4px}
+/* Discover: larger Body Focus icons (photo-tile height stays 84px — pinned). */
+.focus-tile{gap:10px}
+.focus-tile .focus-icon{width:48px;height:48px}
+.focus-tile .focus-icon svg{width:26px;height:26px}
+@media(max-width:380px){.focus-tile .focus-icon{width:44px;height:44px}.focus-tile .focus-icon svg{width:24px;height:24px}}
+/* Report: bigger stat numbers, bigger goal ring (data and order untouched). */
+.summary .stat b{font-size:34px}
+.goal-ring{width:104px;height:104px;flex-basis:104px}
+.goal-ring span{width:76px;height:76px}
+/* Settings: roomier menu rows inside the existing rich cards. */
+.settings-page .menu-row{padding:16px 0}
+.measure-current{display:flex;gap:18px;flex-wrap:wrap;margin:6px 0 4px}.measure-current>div{display:flex;flex-direction:column;gap:2px}.measure-current b{font-size:28px;font-weight:850;color:var(--blue)}.measure-current span{font-size:13px;font-weight:800;color:var(--teal)}
+.measure-form{display:grid;gap:12px;margin:14px 0}.measure-field{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:700;color:var(--text)}.measure-field input{min-height:44px;padding:12px 14px;border:1px solid var(--line);border-radius:11px;background:var(--canvas);color:var(--ink);font-size:16px;width:100%}
+.measure-history-head{margin-top:18px}.measure-del{width:auto;padding:12px 16px;font-size:13px}

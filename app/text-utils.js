@@ -491,3 +491,49 @@ export function compareProgramDays(a, b) {
   }
   return { days: n, daysDiffer, daysSame: n - daysDiffer, stepDiffs, day1Same };
 }
+
+// ---- Measurements (weight / height / BMI) --------------------------------
+// Pure helpers, unit-testable in Node. BMI uses the standard adult formula
+// weight(kg) / height(m)^2. Range labels are the standard adult ranges only;
+// no diagnosis, no targets, no recommendations.
+export function calcBmi(weightKg, heightCm) {
+  const w = Number(weightKg), h = Number(heightCm);
+  if (!Number.isFinite(w) || !Number.isFinite(h) || w <= 0 || h <= 0) return null;
+  const v = w / ((h / 100) * (h / 100));
+  if (!Number.isFinite(v)) return null;
+  return Math.round(v * 10) / 10;
+}
+export function bmiRange(bmi) {
+  if (bmi == null || !Number.isFinite(bmi)) return null;
+  if (bmi < 18.5) return 'Underweight';
+  if (bmi < 25) return 'Healthy';
+  if (bmi < 30) return 'Overweight';
+  return 'Obese';
+}
+function isValidISODate(s) {
+  if (typeof s !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const d = new Date(s + 'T00:00:00Z');
+  return !isNaN(d) && d.toISOString().slice(0, 10) === s;
+}
+export function normalizeMeasurement(e) {
+  if (!e || typeof e !== 'object') return null;
+  if (!isValidISODate(e.date)) return null;
+  const w = Number(e.weightKg), h = Number(e.heightCm);
+  if (!Number.isFinite(w) || w < 2 || w > 500) return null;
+  if (!Number.isFinite(h) || h < 30 || h > 300) return null;
+  const u = Number(e.updatedAt);
+  return { date: e.date, weightKg: w, heightCm: h, updatedAt: Number.isFinite(u) ? u : 0 };
+}
+export function sortMeasurementsDesc(list) {
+  return [...(Array.isArray(list) ? list : [])].sort((a, b) => {
+    if (a.date !== b.date) return a.date < b.date ? 1 : -1;
+    return (b.updatedAt || 0) - (a.updatedAt || 0);
+  });
+}
+export function latestMeasurement(list) {
+  const sorted = sortMeasurementsDesc(list);
+  return sorted.length ? sorted[0] : null;
+}
+export function todayISO(d = new Date()) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}

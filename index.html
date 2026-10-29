@@ -11,6 +11,7 @@
 <meta property="og:image" content="https://fitness.studydesk.fun/og-image.png">
 <meta property="og:image:width" content="512">
 <meta property="og:image:height" content="512">
+<meta name="twitter:card" content="summary">
 <link rel="canonical" href="https://fitness.studydesk.fun/">
 <script type="application/ld+json">
 {
@@ -126,7 +127,7 @@ header{background:#fff;border-bottom:1px solid #EEF2F0;position:sticky;top:0;z-i
 .brand{display:flex;align-items:center;gap:9px;flex-shrink:0}
 .brand .word{font-size:18px;line-height:1.05;font-weight:800;color:var(--navy)}
 .brand .word span{display:block;color:var(--green)}
-nav.main{display:flex;gap:28px;margin:0 auto}
+nav.main{display:flex;gap:28px;margin:0 auto;flex-wrap:wrap}
 nav.main a{font-size:14px;font-weight:600;color:#4A5A68;padding:6px 0;border-bottom:2px solid transparent}
 nav.main a.on{color:var(--green);border-bottom-color:var(--green)}
 .head-right{margin-left:auto;display:flex;align-items:center;gap:16px}
@@ -214,7 +215,7 @@ nav.main a.on{color:var(--green);border-bottom-color:var(--green)}
 footer{background:#142433;color:#CBD5E1}
 .foot-in{max-width:1024px;margin:0 auto;padding:24px;display:flex;align-items:center;gap:28px}
 .foot-in .brand .word{color:#fff}
-.foot-in nav{display:flex;gap:22px;margin:0 auto}
+.foot-in nav{display:flex;gap:22px;margin:0 auto;flex-wrap:wrap}
 .foot-in nav a{color:#AEB9C4;font-size:13px;font-weight:600}
 .foot-in small{color:#CBD5E1;font-size:13px;white-space:nowrap}
 /* ---------- Responsive ---------- */
@@ -274,6 +275,7 @@ footer{background:#142433;color:#CBD5E1}
 .contact-follow{display:grid;gap:14px;max-width:680px}
 .follow-card{display:flex;align-items:center;gap:16px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px 22px;box-shadow:0 14px 30px rgba(18,42,58,.10);text-decoration:none;color:inherit}
 .follow-chip{width:52px;height:52px;flex:0 0 52px;border-radius:16px;display:grid;place-items:center;color:#fff;font-size:22px;font-weight:900}
+.follow-chip svg{width:26px;height:26px;display:block}
 .follow-card.instagram .follow-chip{background:linear-gradient(45deg,#F58529,#DD2A7B,#8134AF)}
 .follow-card.youtube .follow-chip{background:#FF0000}
 .follow-card.telegram .follow-chip{background:#229ED9}
@@ -293,7 +295,7 @@ footer{background:#142433;color:#CBD5E1}
 <body>
 <header><div class="head-in">
 <a class="brand" href="#top" aria-label="Har Ghar Fitness — home"><svg width="38" height="38" viewBox="0 0 64 64" aria-hidden="true"><path d="M4 32 L32 6 L60 32" fill="none" stroke="#E67E22" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 30 V54 a2 2 0 0 0 2 2 H50 a2 2 0 0 0 2-2 V30" fill="none" stroke="#0F8A56" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="32" cy="29" r="4.5" fill="#122A3A"/><g stroke="#122A3A" stroke-width="3.5" stroke-linecap="round" fill="none"><path d="M32 35 L25 27"/><path d="M32 35 L39 27"/><path d="M32 35 V45"/><path d="M32 45 L26 54"/><path d="M32 45 L38 54"/></g></svg><span class="word">Har Ghar<span>Fitness</span></span></a>
-<nav class="main" id="mainNav" aria-label="Main navigation"><a class="on" href="#top">Home</a><a href="app/">Training</a><a href="app/?tab=discover">Discover</a><a href="app/?tab=report">Report</a></nav>
+<nav class="main" id="mainNav" aria-label="Main navigation"><a class="on" href="#top">Home</a><a href="app/">Training</a><a href="app/?tab=discover">Discover</a><a href="app/?tab=report">Report</a><a href="programs/">Programs</a><a href="exercises/">Exercises</a></nav>
 <div class="head-right"><button class="search-btn" aria-label="Search" onclick="toggleLandingSearch()">⌕<span class="search-label">Search</span></button><a class="btn-green" href="app/">Get Started</a><button class="hamburger" aria-label="Open menu" aria-expanded="false" id="burger" onclick="var n=document.getElementById('mainNav');var o=n.classList.toggle('open');document.getElementById('burger').setAttribute('aria-expanded',o)">☰</button></div>
 </div></header><div class="search-panel" id="landingSearchPanel" hidden><div class="search-panel-in"><input id="landingSearchInput" type="search" placeholder="Search programs and exercises…" aria-label="Search programs and exercises"><div id="landingSearchResults"><p class="search-hint">Type to search 40 programs and 163 exercises.</p></div><a class="search-all" href="app/?tab=plans">View all programs in the app →</a></div></div>
 
@@ -384,30 +386,6 @@ footer{background:#142433;color:#CBD5E1}
 <div class="hero-btns" style="margin-top:18px"><a class="btn-green" href="programs/">Browse all programs</a><a class="btn-ghost" href="exercises/">Browse all exercises</a></div>
 </section>
 
-<!-- About Aman -->
-<div class="band"><section class="sec" id="about">
-<div class="sec-eyebrow">About Aman</div>
-<h2>About Aman</h2>
-<div class="card" style="margin:18px 0 22px"><div class="pic" style="height:240px"><img class="pos-c" width="1080" height="720" src="assets/hero-lunge.webp" alt="Woman doing a lunge on a yoga mat at home"></div></div>
-<p class="sec-sub">Hi, I'm Aman Agarwal — fitness mentor and trader. I started my trading journey in 2022 while studying in Class 8. Since then, I have been continuously learning, practicing, and improving my understanding of the stock market and financial discipline.</p>
-<p class="sec-sub">In 2025, I shifted my focus towards fitness and self-development. My fitness journey taught me consistency, patience, and mental strength — qualities that also help me in trading and life. I believe in building discipline in both money and mindset. My goal is to grow as a trader, content creator, and self-improvement enthusiast while inspiring others to work on themselves daily.</p>
-<p class="sec-sub"><b>Trading | Fitness | Self Growth · Age 20 · Dhaka, India 845418</b></p>
-</section></div>
-
-<!-- Experience -->
-<section class="sec" id="experience">
-<div class="sec-eyebrow">Experience</div>
-<h2>Experience</h2>
-<p class="sec-sub">What Aman brings to Har Ghar Fitness — learning, trading, fitness, travel, and community.</p>
-<div class="cards">
-<article class="card"><div class="pic"><img class="pos-c" width="1920" height="1280" src="assets/program-stretch.webp" alt="Woman stretching her arms overhead"></div><div class="card-body"><h3>Academic</h3><p>Class 12 Science stream — Physics, Chemistry, Mathematics, Biology. Self-learning through online platforms, engineering career preparation, and concept-based learning rather than rote memorization.</p></div></article>
-<article class="card"><div class="pic"><img class="pos-c" width="1080" height="720" src="assets/cta-sunrise.webp" alt="Man watching a sunrise over green hills"></div><div class="card-body"><h3>Trading</h3><p>Stock market trader, 4 years. Technical analysis — chart patterns, support &amp; resistance, price action. Risk management and capital preservation, swing &amp; intraday trading. Personal brand “Trade With Amanji”, educating beginners through YouTube.</p></div></article>
-<article class="card"><div class="pic"><img class="pos-c" width="1920" height="1280" src="assets/program-pushup.webp" alt="Man doing a low push-up"></div><div class="card-body"><h3>Fitness</h3><p>21 Days Challenge creator. Structured 21-day challenge, muscle gain &amp; weight improvement focus, natural vegetarian diet planning, and a discipline &amp; consistency mindset. Fitness awareness content creator (Har Ghar Fitness).</p></div></article>
-<article class="card"><div class="pic"><img class="pos-c" width="1920" height="1280" src="assets/program-lunge.webp" alt="Man doing a kneeling lunge stretch"></div><div class="card-body"><h3>Travelling</h3><p>Travel explorer, learning through experiences. Exploring new places to build confidence &amp; exposure, travel documentation and short content creation, adaptability &amp; communication skills, cultural understanding &amp; networking mindset.</p></div></article>
-<article class="card"><div class="pic"><img class="pos-c" width="2240" height="1120" src="assets/program-plank.webp" alt="Woman holding a plank"></div><div class="card-body"><h3>Social &amp; Leadership</h3><p>Effective communicator with audience engagement ability. Community building via YouTube &amp; online platforms, team collaboration mindset, adaptable and quick learner, strong time management balancing academics, trading &amp; fitness.</p></div></article>
-</div>
-</section>
-
 <!-- Contact -->
 <section class="sec contact" id="contact">
 <div class="sec-eyebrow">Contact</div>
@@ -419,17 +397,17 @@ footer{background:#142433;color:#CBD5E1}
 </div>
 <div class="contact-follow-label"><b>Follow</b></div>
 <div class="contact-follow">
-<a class="follow-card instagram" href="https://www.instagram.com/hargharfitness"><span class="follow-chip" aria-hidden="true">I</span><span class="follow-text"><b>Instagram</b><span>@hargharfitness</span></span><span class="follow-chev" aria-hidden="true">›</span></a>
-<a class="follow-card youtube" href="https://youtube.com/@hargharfitness"><span class="follow-chip" aria-hidden="true">Y</span><span class="follow-text"><b>YouTube</b><span>@hargharfitness</span></span><span class="follow-chev" aria-hidden="true">›</span></a>
-<a class="follow-card telegram" href="https://t.me/HarGharFitnessofficial"><span class="follow-chip" aria-hidden="true">T</span><span class="follow-text"><b>Telegram</b><span>HarGharFitnessofficial</span></span><span class="follow-chev" aria-hidden="true">›</span></a>
-<a class="follow-card whatsapp" href="https://whatsapp.com/channel/0029VbBhtlH2f3EHA0eiuC3c"><span class="follow-chip" aria-hidden="true">W</span><span class="follow-text"><b>WhatsApp channel</b><span>Har Ghar Fitness channel</span></span><span class="follow-chev" aria-hidden="true">›</span></a>
+<a class="follow-card instagram" href="https://www.instagram.com/hargharfitness"><span class="follow-chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1.2" fill="#fff" stroke="none"/></svg></span><span class="follow-text"><b>Instagram</b><span>@hargharfitness</span></span><span class="follow-chev" aria-hidden="true">›</span></a>
+<a class="follow-card youtube" href="https://youtube.com/@hargharfitness"><span class="follow-chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="#fff"><path d="M21.6 7.2a2.5 2.5 0 0 0-1.76-1.77C18.25 5 12 5 12 5s-6.25 0-7.84.43A2.5 2.5 0 0 0 2.4 7.2 26 26 0 0 0 2 12a26 26 0 0 0 .4 4.8 2.5 2.5 0 0 0 1.76 1.77C5.75 19 12 19 12 19s6.25 0 7.84-.43a2.5 2.5 0 0 0 1.76-1.77A26 26 0 0 0 22 12a26 26 0 0 0-.4-4.8zM10 15V9l5.2 3z"/></svg></span><span class="follow-text"><b>YouTube</b><span>@hargharfitness</span></span><span class="follow-chev" aria-hidden="true">›</span></a>
+<a class="follow-card telegram" href="https://t.me/HarGharFitnessofficial"><span class="follow-chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></span><span class="follow-text"><b>Telegram</b><span>HarGharFitnessofficial</span></span><span class="follow-chev" aria-hidden="true">›</span></a>
+<a class="follow-card whatsapp" href="https://whatsapp.com/channel/0029VbBhtlH2f3EHA0eiuC3c"><span class="follow-chip" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="#fff" d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2z"/><g transform="translate(6.5 6.5) scale(0.46)" fill="#25D366"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.13.96.36 1.9.7 2.8a2 2 0 0 1-.45 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.45c.9.34 1.84.57 2.8.7A2 2 0 0 1 22 16.9z"/></g></svg></span><span class="follow-text"><b>WhatsApp channel</b><span>Har Ghar Fitness channel</span></span><span class="follow-chev" aria-hidden="true">›</span></a>
 </div>
 </section>
 </main>
 
 <footer><div class="foot-in">
 <a class="brand" href="#top"><svg width="36" height="36" viewBox="0 0 64 64" aria-hidden="true"><path d="M4 32 L32 6 L60 32" fill="none" stroke="#E67E22" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 30 V54 a2 2 0 0 0 2 2 H50 a2 2 0 0 0 2-2 V30" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="32" cy="29" r="4.5" fill="#fff"/><g stroke="#fff" stroke-width="3.5" stroke-linecap="round" fill="none"><path d="M32 35 L25 27"/><path d="M32 35 L39 27"/><path d="M32 35 V45"/><path d="M32 45 L26 54"/><path d="M32 45 L38 54"/></g></svg><span class="word">Har Ghar<span>Fitness</span></span></a>
-<nav aria-label="Footer navigation"><a href="#top">Home</a><a href="app/">Training</a><a href="app/?tab=discover">Discover</a><a href="app/?tab=report">Report</a></nav>
+<nav aria-label="Footer navigation"><a href="#top">Home</a><a href="app/">Training</a><a href="app/?tab=discover">Discover</a><a href="app/?tab=report">Report</a><a href="programs/">Programs</a><a href="exercises/">Exercises</a><a href="privacy/">Privacy</a><a href="terms/">Terms</a></nav>
 <div class="connect"><b>Connect with Aman</b><span><a href="https://www.instagram.com/hargharfitness">Instagram</a> · <a href="https://youtube.com/@hargharfitness">YouTube</a> · <a href="https://t.me/HarGharFitnessofficial">Telegram</a> · <a href="https://whatsapp.com/channel/0029VbBhtlH2f3EHA0eiuC3c">WhatsApp channel</a></span></div>
 <small>© 2026 Har Ghar Fitness. All rights reserved.</small>
 </div></footer>
