@@ -379,3 +379,68 @@ export function discoverRoutineFor(entry, programIds) {
       : 'The catalog’s own exercise sequence is not in the source data, so this plays the closest bundled routine.',
   };
 }
+
+/** Fix-pass helpers (v11). All pure, so node tests can import them. */
+
+/** Training quick-chip id -> dayTags key. 'burn' has no dayTags key of its
+ * own: Burn Fat means the same cardio-leaning definition as the Challenge
+ * "Lose Weight" filter (the 'weight' tag), so it maps there instead of
+ * matching nothing. Every other chip id already is a dayTags key. */
+export function quickChipTag(id) {
+  return id === 'burn' ? 'weight' : id;
+}
+
+/** "For Beginners" section membership: only items whose catalog level is
+ * Beginner, or whose level is not recorded at all. A known Intermediate
+ * item (e.g. the No Pushups Arm Workout) is excluded, not relabelled. */
+export function isBeginnerCatalogItem(record) {
+  const level = String(record?.level || '').toLowerCase();
+  return level === '' || level === 'beginner';
+}
+
+const WEEKDAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+/** Sessions stepper that preserves the existing day selection: growing
+ * keeps every planned day and adds the next unplanned day in week order;
+ * shrinking drops the last planned day. Days are always returned sorted
+ * Mon..Sun. Used by the Workout Settings sessions stepper and tested. */
+export function adjustPlannedDays(current, newCount) {
+  const target = Math.min(7, Math.max(1, newCount));
+  const cur = [...new Set((current || []).filter((d) => WEEKDAY_NAMES.includes(d)))];
+  while (cur.length < target) {
+    const next = WEEKDAY_NAMES.find((d) => !cur.includes(d));
+    if (!next) break;
+    cur.push(next);
+  }
+  while (cur.length > target) cur.pop();
+  return cur.sort((a, b) => WEEKDAY_NAMES.indexOf(a) - WEEKDAY_NAMES.indexOf(b));
+}
+
+/** Day-by-day comparison of two bundled programs (same shape as
+ * reference.json programs: {days: [{steps: [{exerciseId, mode, value}]}]}).
+ * Returns how many days differ in exercises or values, how many match
+ * exactly, whether Day 1 matches, and the total differing steps. Used to
+ * surface the real difference between "Lower Body · 28 Days" and its
+ * "(Updated)" variant instead of inventing one. */
+export function compareProgramDays(a, b) {
+  const daysA = a?.days || [];
+  const daysB = b?.days || [];
+  const n = Math.max(daysA.length, daysB.length);
+  let daysDiffer = 0;
+  let stepDiffs = 0;
+  let day1Same = false;
+  for (let d = 0; d < n; d++) {
+    const sa = daysA[d]?.steps || [];
+    const sb = daysB[d]?.steps || [];
+    let diff = 0;
+    for (let i = 0; i < Math.max(sa.length, sb.length); i++) {
+      const x = sa[i];
+      const y = sb[i];
+      if (!x || !y || String(x.exerciseId) !== String(y.exerciseId) || x.mode !== y.mode || String(x.value) !== String(y.value)) diff++;
+    }
+    if (diff > 0) daysDiffer++;
+    else if (d === 0) day1Same = true;
+    stepDiffs += diff;
+  }
+  return { days: n, daysDiffer, daysSame: n - daysDiffer, stepDiffs, day1Same };
+}
