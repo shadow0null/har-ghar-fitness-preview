@@ -59,6 +59,7 @@ html{font-family:'Outfit Licensed',Inter,system-ui,sans-serif}
 .browse-search input{width:100%;min-width:10px;outline:0;color:var(--ink);border:0;background:transparent;font-size:16px;padding:12px 0}
 .browse-search>span:last-child{white-space:nowrap;font-size:12px;font-weight:650}
 .discover-section{margin:24px -21px 0;padding-left:21px}
+.discover-empty{text-align:center;padding:24px 12px;font-size:15px;color:var(--muted)}
 .discover-section .section-heading{padding-right:21px;display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:13px}
 .discover-section .section-heading h2{font-size:18px;margin:0}
 .discover-section .section-heading span{white-space:nowrap;color:var(--muted);font-size:13px}
