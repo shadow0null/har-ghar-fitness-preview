@@ -44,7 +44,7 @@ export async function hashPassword(password,saltHex){
   return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('');
 }
 // Shape of one stored account. There is deliberately no password field:
-// only the salt and the digest are kept, on this device only.
+// only the salt and the digest are kept, never a password in plain text.
 export function createAccountRecord({name,email,salt,hash}){
   return {name:String(name||'').trim(),email:normalizeEmail(email),salt,hash,createdAt:new Date().toISOString(),onboarded:false,profile:null};
 }
@@ -79,17 +79,20 @@ export function matchPlan({focus=[],pushups='0',programIds}){
 }
 
 // ---- REAL Google sign-in: pure helpers (see GOOGLE-SIGNIN.md) ------------
-// Google verifies identity ONLY (email + name). The backend returns nothing
-// else, and no workout, history, or profile data ever leaves this device.
-// The secret is exchanged server-side and NEVER appears in this file.
+// Google verifies identity ONLY (email + name). Fitness data syncs to the
+// fitness server for signed-in accounts (see server-sync.js); it is never
+// sent to Google. The secret is exchanged server-side and NEVER appears
+// in this file.
 // Reused client: the studydesk.fun OAuth client (redirect URI
 // https://fitness.studydesk.fun/google-callback.php); its consent screen
 // shows that client's existing branding.
 export const GOOGLE_BACKEND_ORIGIN='https://fitness.studydesk.fun';
 
-// Shape of a Google-verified local account: same storage key as password
-// accounts, but no salt/hash — password login must refuse these accounts
-// with a truthful "uses Google sign-in" message, never the generic error.
+// Shape of a Google-verified account record (device-local fallback, used
+// only where no server session exists — e.g. the Pages preview token path):
+// same storage key as password accounts, but no salt/hash — password login
+// must refuse these accounts with a truthful "uses Google sign-in" message,
+// never the generic error.
 export function createGoogleAccountRecord({name,email}){
   const norm=normalizeEmail(email);
   return {name:String(name||'').trim()||norm.split('@')[0],email:norm,provider:'google',googleVerified:true,salt:null,hash:null,createdAt:new Date().toISOString(),onboarded:false,profile:null};
@@ -154,6 +157,17 @@ export function googleMeUrl({hostname='',origin='',token=null}={}){
 // if the backend is unreachable). Same preview/production split as start.
 export function googleLogoutUrl({hostname='',origin=''}={}){
   return (String(hostname).endsWith('github.io')?GOOGLE_BACKEND_ORIGIN:origin)+'/google-logout.php';
+}
+
+// Reachability probe for the "Continue with Google" button (v5.9 fix):
+// the same identity endpoint the return flow reads, on the backend that
+// would serve the sign-in. Preview hosts ping the production backend —
+// cross-origin status reads are allowed by the preview-origin CORS
+// allowlist in server/google-me.php (no credentials, no user data). Any
+// other host pings its own origin. The app treats a 404, a network failure,
+// or a CORS rejection as "backend not available here" and stays in the app.
+export function googlePingUrl({hostname='',origin=''}={}){
+  return (String(hostname).endsWith('github.io')?GOOGLE_BACKEND_ORIGIN:origin)+'/google-me.php';
 }
 
 // Remove ONLY the google return params from a query string, preserving any

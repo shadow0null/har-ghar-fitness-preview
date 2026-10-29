@@ -452,7 +452,7 @@ html[data-theme=midnight] .menu-row.danger-row b{color:#F87171}
 .goal-ring-card{display:flex;align-items:center;gap:16px;background:var(--surface);border:1px solid var(--line);border-radius:19px;padding:18px;margin:23px 0;box-shadow:0 4px 15px #00000003}
 .goal-ring-card h2{margin:0 0 6px}
 .goal-ring-card p{margin:0}
-.goal-ring{width:88px;height:88px;flex:0 0 88px;border-radius:50%;background:conic-gradient(#0F8A56 calc(var(--pct,0)*1%),var(--soft) 0);display:grid;place-items:center}
+.goal-ring{width:88px;height:88px;flex:0 0 88px;border-radius:50%;background:conic-gradient(#0F8A56 var(--pct,0%),var(--soft) 0);display:grid;place-items:center}
 .goal-ring span{width:64px;height:64px;border-radius:50%;background:var(--surface);display:grid;place-items:center;font-size:15px;font-weight:800;color:var(--ink)}
 .auth-input-wrap .auth-show{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:auto;min-height:36px;padding:8px 12px;font-size:13px;font-weight:800;color:var(--blue)}
 .auth-error{color:#C0392B;font-size:13px;font-weight:700;line-height:1.5}
@@ -671,7 +671,6 @@ html[data-theme=midnight] .guest-link{color:#86C99B}
 .nb-choice.selected{background:linear-gradient(135deg,#1DB271,#0B6B42)}
 .nb-choice.selected::after{content:'✓';position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;background:#fff;color:#0F8A56;display:grid;place-items:center;font-size:16px;font-weight:900;box-shadow:0 2px 8px rgba(0,0,0,.2)}
 .nb-choice.nb-goal{flex-direction:row;align-items:center;justify-content:space-between;gap:12px}
-.nb-choice.nb-goal.selected::after{display:none}
 .nb-goal-copy{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
 .nb-goal-icon{width:56px;height:56px;flex:0 0 56px;border-radius:50%;background:#E7F6EC;color:#0F8A56;display:grid;place-items:center}
 .nb-goal-icon svg{width:30px;height:30px}
@@ -729,10 +728,11 @@ html[data-theme=midnight] .focus-icon{background:#1B3448;color:#86C99B}
 .week-card-head h2{margin:0;font-size:20px}
 .week-pill{background:#E7F6EC;color:#0B6B42;font-size:13px;font-weight:800;padding:7px 13px;border-radius:99px;white-space:nowrap}
 .week-card .week-chart{margin:16px 0 4px}
-.history-row{padding:14px 0}
+.history-row{padding:14px 16px}
+.history-row .grow{overflow-wrap:anywhere}
 .history-icon{width:44px;height:44px;flex:0 0 44px;border-radius:50%;background:#0F8A56;color:#fff;display:grid;place-items:center}
 .history-icon svg{width:24px;height:24px}
-.history-min{color:#0F8A56;font-weight:900;font-size:15px;white-space:nowrap}
+.history-min{color:#0F8A56;font-weight:900;font-size:15px;white-space:nowrap;flex-shrink:0}
 .goal-ring-card .goal-ring span{font-size:18px}
 html[data-theme=midnight] .stat-icon,html[data-theme=midnight] .week-pill{background:#1B3448;color:#86C99B}
 html[data-theme=midnight] .history-icon{background:#14A866}
@@ -744,3 +744,37 @@ html[data-theme=midnight] .history-min{color:#86C99B}
 .nav .selected{color:#0F8A56}
 html[data-theme=midnight] .nav .selected{color:#86C99B}
 @media(max-width:380px){.auth-shell .auth-card h1{font-size:32px}.onboard.auth-page h1{font-size:30px}.nb-figure svg{width:92px;height:138px}.nb-plan-card h2{font-size:22px}.report-title h1,.page-h1{font-size:32px}.discover-hero-copy b{font-size:26px}}
+/* Image-fidelity pass v5.9: onboarding gender/focus/goals + Discover tab, matched element by element to the modern reference images. Data and behaviour unchanged. */
+.nb-figure.selected{background:var(--canvas);color:var(--ink)}
+html[data-theme=midnight] .nb-figure.selected{background:var(--canvas);color:var(--ink)}
+.nb-focus-wrap{align-items:flex-start}
+.nb-focus-chips{min-width:0}
+.nb-focus-chips .nb-chip{height:52px;box-sizing:border-box;padding:0 18px;font-size:15px;white-space:nowrap;text-align:left}
+.nb-focus-chips .nb-check{width:22px;height:22px;flex:0 0 22px;border-radius:50%;background:#fff;color:#0F8A56;display:grid;place-items:center;font-size:14px;font-weight:900}
+.nb-body{width:auto;height:260px;flex:0 0 auto;overflow:visible}
+.nb-body.is-full{filter:drop-shadow(0 0 12px rgba(15,138,86,.35))}
+.nb-choice.nb-goal{padding:20px;gap:16px;box-shadow:0 8px 24px rgba(18,42,68,.08)}
+.nb-goal-icon{width:88px;height:88px;flex:0 0 88px;background:none;border-radius:0}
+.nb-goal-icon svg{width:88px;height:88px}
+.nb-choice.selected .nb-goal-icon{background:none;color:#fff}
+html[data-theme=midnight] .nb-goal-icon{background:none;color:#86C99B}
+.discover-header .header-search-icon{background:#EFF2F0}
+html[data-theme=midnight] .discover-header .header-search-icon{background:var(--soft)}
+.discover-hero-image{height:230px}
+.discover-hero-image .image-fallback{height:230px}
+.discover-hero-copy b{font-size:32px}
+.discover-chips .chip{padding:14px 20px;font-size:14px;font-weight:800}
+.discover-chips .chip.selected{background:#0F8A56}
+.focus-tile{padding:8px 8px 12px;gap:8px}
+.focus-photo{display:block;width:100%}
+.focus-photo img{width:100%;height:56px;object-fit:cover;border-radius:12px;display:block}
+.focus-tile b{font-size:12px;text-align:center}
+.focus-tile small{font-size:11px}
+.level-pill.beginner{background:#0F8A56;color:#fff}
+.level-pill.intermediate{background:#FBE3C8;color:#7A4A12}
+.level-pill.advanced{background:#E8ECEA;color:#334155}
+.card.row-card{background:var(--surface);border:1px solid var(--line);border-radius:18px}
+.card.row-card .level-pill{margin-top:0}
+.card-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
+.row-min{font-size:13px;color:var(--muted);font-weight:650}
+@media(max-width:380px){.nb-body{height:212px}.nb-focus-chips .nb-chip{height:46px;padding:0 12px;font-size:14px}.nb-focus-chips .nb-check{width:20px;height:20px;flex:0 0 20px;font-size:13px}.focus-photo img{height:52px}.nb-goal-icon{width:72px;height:72px;flex:0 0 72px}.nb-goal-icon svg{width:72px;height:72px}}
