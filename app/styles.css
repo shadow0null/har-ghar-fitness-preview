@@ -1,6 +1,6 @@
 :root{font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#102A43;background:#fff;font-synthesis:none;--ink:#102A43;--text:#334155;--muted:#5E6E7E;--blue:#0B6B42;--blue2:#0F8A56;--teal:#0F8A56;--surface:#fff;--canvas:#fff;--soft:#E7F6EC;--line:#E6ECE9;--field:#F1F5F2;--shadow:0 18px 50px rgba(27,66,104,.08)}
 :root[data-theme=midnight]{--ink:#e6f4ff;--text:#cfe0ec;--muted:#a9c2d4;--blue:#86C99B;--blue2:#86C99B;--teal:#86C99B;--surface:#16293A;--canvas:#12222F;--soft:#1B3448;--line:#24394D;--field:#1B3448;--shadow:0 15px 50px #0004;background:#0b1421;color:#e6f4ff}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(600px 300px at 0% 0%,rgba(15,138,86,.10),transparent 60%),radial-gradient(500px 300px at 100% 100%,rgba(230,126,34,.12),transparent 60%),#F4F7F5;color:var(--ink)}html[data-theme=midnight] body{background:radial-gradient(600px 300px at 0% 0%,rgba(15,138,86,.16),transparent 60%),radial-gradient(500px 300px at 100% 100%,rgba(230,126,34,.10),transparent 60%),#0b1421}button,input,select{font:inherit}button{cursor:pointer;border:0;background:none;color:inherit;-webkit-tap-highlight-color:transparent;min-height:44px}button:disabled{cursor:not-allowed;opacity:.55}button:active:not(:disabled){transform:scale(.975)}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #F5870B;outline-offset:3px}#app{max-width:540px;margin:auto;background:linear-gradient(180deg,rgba(15,138,86,.05),rgba(15,138,86,0) 340px),linear-gradient(0deg,rgba(230,126,34,.04),rgba(230,126,34,0) 340px),var(--surface);min-height:100dvh;padding-bottom:90px;overflow:hidden}h1,h2,h3,p{letter-spacing:-.02em}h2{font-size:19px;margin:28px 0 14px;font-weight:800}h3{font-size:15px;margin:0 0 6px;font-weight:760}p{font-size:14px;line-height:1.6;color:var(--text)}small,.muted{color:var(--muted);font-size:13px;line-height:1.55}small{display:inline-block}a{color:var(--blue)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(600px 300px at 0% 0%,rgba(15,138,86,.10),transparent 60%),radial-gradient(500px 300px at 100% 100%,rgba(230,126,34,.12),transparent 60%),#F4F7F5;color:var(--ink)}html[data-theme=midnight] body{background:radial-gradient(600px 300px at 0% 0%,rgba(15,138,86,.16),transparent 60%),radial-gradient(500px 300px at 100% 100%,rgba(230,126,34,.10),transparent 60%),#0b1421}button,input,select{font:inherit}button{cursor:pointer;border:0;background:none;color:inherit;-webkit-tap-highlight-color:transparent;min-height:44px}button:disabled{cursor:not-allowed;opacity:.55}button:active:not(:disabled){transform:scale(.975)}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #0F8A56;outline-offset:3px}#app{max-width:540px;margin:auto;background:linear-gradient(180deg,rgba(15,138,86,.05),rgba(15,138,86,0) 340px),linear-gradient(0deg,rgba(230,126,34,.04),rgba(230,126,34,0) 340px),var(--surface);min-height:100dvh;padding-bottom:90px;overflow:hidden}h1,h2,h3,p{letter-spacing:-.02em}h2{font-size:19px;margin:28px 0 14px;font-weight:800}h3{font-size:15px;margin:0 0 6px;font-weight:760}p{font-size:14px;line-height:1.6;color:var(--text)}small,.muted{color:var(--muted);font-size:13px;line-height:1.55}small{display:inline-block}a{color:var(--blue)}
 .header{display:flex;align-items:center;gap:13px;padding:22px 21px 18px;background:var(--surface);position:sticky;top:0;z-index:3;border-bottom:1px solid var(--line)}.header h1{font-size:19px;letter-spacing:.04em;line-height:1.25;margin:0;flex:1;font-weight:850}.header button{width:44px;height:44px;font-size:27px;display:grid;place-items:center;border-radius:14px;background:var(--soft)}.page{padding:0 21px 28px}.page>h2{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}.notice{border-radius:14px;background:#FEF3C7;padding:14px 16px;color:#92400E;font-size:13px;line-height:1.55;margin:17px 0}.tiny-note{padding:10px 12px;background:var(--canvas);border:1px solid var(--line);border-radius:12px;font-size:13px;color:var(--muted)}
 .goal{background:var(--canvas);border:1px solid var(--line);border-radius:19px;padding:19px 18px;margin:7px 0 17px;box-shadow:0 4px 15px #00000003;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline}.goal .week{flex-basis:100%}.goal b{font-size:14px}.goal>span{font-weight:800;color:var(--blue);font-size:14px}.week{display:flex;justify-content:space-between;margin-top:16px;font-size:12px;color:var(--muted)}.week span{background:var(--surface);width:31px;height:31px;border:1px solid var(--line);border-radius:12px;display:grid;place-items:center;font-weight:750}
 .banner{min-height:188px;padding:25px 22px;border-radius:23px;color:white;background:linear-gradient(117deg,#142433,#1d3a4d);margin:18px 0 22px;position:relative;overflow:hidden;box-shadow:0 14px 28px rgba(16,95,157,.15)}.banner>*:not(.banner-photo):not(.banner-shade){position:relative;z-index:1}.banner h2{color:#fff;margin:12px 0 9px;font-size:27px;line-height:1.1;max-width:50%;letter-spacing:-.05em}.banner p{color:#c9e7f5;margin:0;max-width:46%;font-size:13px}.banner .primary{margin-top:18px;width:auto;font-size:13px;display:inline-flex;padding:13px 18px}.banner .eyebrow{font-size:11px;font-weight:800;letter-spacing:.15em;color:#86C99B}
@@ -39,7 +39,7 @@ html{font-family:'Outfit Licensed',Inter,system-ui,sans-serif}
 .exercise-tips{color:var(--text);font-size:13px;line-height:1.6;padding-left:23px;white-space:pre-line}.exercise-tips li{margin:9px 0}.meal-pill{display:inline-block;background:#0F8A56;color:#fff;font-size:13px;font-weight:800;padding:8px 16px;border-radius:99px;min-height:44px;line-height:28px}.meal-list{color:var(--text);font-size:14px;line-height:1.6;padding-left:23px}.meal-list li{margin:9px 0}
 @media(prefers-reduced-motion:reduce){.licensed-stage svg{transition:none}}
 /* Recovered Discover artwork. Exact APK image/source identities; app layout remains Har Ghar original. */
-.discovery{padding-bottom:40px}
+.discovery{padding-bottom:0}
 .discover-intro{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:7px 0 20px;background:var(--canvas);border:1px solid var(--line);padding:21px 21px 18px;border-radius:24px;overflow:hidden}
 .discover-intro h2{font-size:23px;line-height:1.15;margin:8px 0 4px}
 .discover-intro p{margin:0;max-width:220px;font-size:13px}
@@ -53,7 +53,7 @@ html{font-family:'Outfit Licensed',Inter,system-ui,sans-serif}
 .explore-banner-copy{position:absolute;z-index:1;left:23px;top:33px;right:15px;display:flex;flex-direction:column;gap:10px}
 .explore-banner-copy b{font-size:21px;letter-spacing:-.04em;max-width:180px;line-height:1.2}
 .explore-banner-copy>span{font-size:13px;font-weight:750;background:#ffffff26;border:1px solid #ffffff32;backdrop-filter:blur(3px);border-radius:100px;padding:9px 13px;width:max-content}
-.image-fallback{display:grid;place-items:center;width:100%;height:100%;background:linear-gradient(120deg,#D3EDE0,#EAF7EF);font-size:35px;color:#0B6B42}
+.image-fallback{display:grid;place-items:center;align-content:center;gap:6px;width:100%;height:100%;background:linear-gradient(120deg,#D3EDE0,#EAF7EF);font-size:35px;color:#0B6B42}
 .browse-search{margin:20px 0 7px;border:2px solid var(--teal);border-radius:15px;padding:9px 13px;display:flex;align-items:center;gap:8px;background:var(--canvas);color:var(--muted);min-height:48px}
 .browse-search>span:first-child{font-size:23px;line-height:1;color:var(--blue);font-weight:800}
 .browse-search input{width:100%;min-width:10px;outline:0;color:var(--ink);border:0;background:transparent;font-size:16px;padding:12px 0}
@@ -71,12 +71,12 @@ html{font-family:'Outfit Licensed',Inter,system-ui,sans-serif}
 .discovery .card .cover-icon,.catalog-grid .card .cover-icon{position:absolute;right:9px;bottom:9px;display:grid;place-items:center;background:#142433;box-shadow:0 1px 6px #0006;color:#fff;border:1px solid #ffffff55;border-radius:100%;font-size:16px;width:27px;height:27px}
 .discovery .card .card-copy,.catalog-grid .card .card-copy{padding:13px 13px 15px;text-align:left;overflow:hidden}
 .discovery .card h3,.catalog-grid .card h3{overflow-wrap:anywhere}
-.discovery .card h3,.catalog-grid .card h3{font-size:13px;font-weight:780;min-height:32px;line-height:1.2}
+.discovery .card h3,.catalog-grid .card h3{font-size:15px;font-weight:780;line-height:1.2}
 .discovery .card small,.catalog-grid .card small{font-size:13px}
 .discovery [hidden],.catalog-grid [hidden],.discover-section[hidden]{display:none!important}
 .source-note{font-size:13px;color:var(--muted);padding:10px 14px;border:1px solid var(--line);background:var(--canvas);border-radius:13px}
 .collection-hero,.catalog-hero{position:relative;border-radius:20px;overflow:hidden;background:var(--canvas);height:200px;margin-top:10px}
-.collection-hero img,.catalog-hero img{width:100%;height:100%;object-fit:cover;display:block}
+.collection-hero img,.catalog-hero img{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
 .collection-hero:after{content:'';position:absolute;inset:0;background:linear-gradient(transparent 35%,#142433cc)}
 .collection-hero-label{position:absolute;z-index:1;left:17px;right:17px;bottom:17px;display:flex;flex-direction:column;gap:5px;color:white}
 .collection-hero-label b{font-size:22px}.collection-hero-label small{color:#e2edf4}
@@ -790,3 +790,25 @@ html[data-theme=midnight] .discover-header .header-search-icon{background:var(--
 .card-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
 .row-min{font-size:13px;color:var(--muted);font-weight:650}
 @media(max-width:380px){.nb-body{height:212px}.nb-focus-chips .nb-chip{height:46px;padding:0 12px;font-size:14px}.nb-focus-chips .nb-check{width:20px;height:20px;flex:0 0 20px;font-size:13px}.focus-photo img{height:52px}.nb-goal-icon{width:72px;height:72px;flex:0 0 72px}.nb-goal-icon svg{width:72px;height:72px}}
+
+/* v5.12 Discover fixes (deep audit of v5.11). Appended late so these win
+   over earlier same-specificity rules. */
+/* 4: active filter chip is unmistakable — solid green, white, bold. */
+.discover-chips .chip.selected{background:#0F8A56;color:#fff;border-color:#0F8A56;font-weight:800}
+/* 2: carousel edge fade signals more cards; snap + end padding already on
+   .horizontal, scroll-padding keeps the last card clear of the fade. */
+.discover-section .horizontal{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 32px),transparent);scroll-padding-right:21px}
+/* 9: Body Focus photo tiles are full-bleed covers; label matches card titles. */
+.focus-tile.has-photo{padding:0 0 12px;overflow:hidden}
+.focus-tile.has-photo .focus-photo img{height:84px;border-radius:0}
+.focus-tile b{font-size:15px}
+/* 18: custom 44px green clear button replaces the tiny native search ×. */
+.browse-search input[type=search]::-webkit-search-cancel-button{display:none}
+.browse-search .search-clear{flex:0 0 44px;width:44px;height:44px;min-height:44px;display:grid;place-items:center;font-size:26px;line-height:1;color:#0F8A56;font-weight:800}
+.browse-search .search-clear[hidden]{display:none}
+.browse-search:focus-within{border-color:#0F8A56}
+/* 21: no dark gradient over a photo-less collection banner. */
+.collection-hero.no-photo:after{display:none}
+.collection-count{margin:10px 0 0}
+/* 27: step titles never split at a hyphen (render also uses U+2011). */
+.step-grid .row h3{overflow-wrap:normal;hyphens:none}
