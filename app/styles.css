@@ -809,6 +809,7 @@ html[data-theme=midnight] .discover-header .header-search-icon{background:var(--
 .browse-search:focus-within{border-color:#0F8A56}
 /* 21: no dark gradient over a photo-less collection banner. */
 .collection-hero.no-photo:after{display:none}
+.collection-banner-title{font-size:22px;margin:14px 0 2px}
 .collection-count{margin:10px 0 0}
 /* 27: step titles never split at a hyphen (render also uses U+2011). */
 .step-grid .row h3{overflow-wrap:normal;hyphens:none}
