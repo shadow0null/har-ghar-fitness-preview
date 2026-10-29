@@ -896,3 +896,18 @@ html[data-theme=midnight] .ob-dots i{background:#3d5a75}
 .contact-socials .menu-icon.youtube{background:#FF0000}
 .contact-socials .menu-icon.telegram{background:#229ED9}
 .contact-socials .menu-icon.whatsapp{background:#25D366}
+.contact-screen .contact-cards{display:grid;gap:14px;margin:20px 0 8px}
+.contact-screen .contact-card{display:flex;align-items:center;gap:16px;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px 20px;box-shadow:0 12px 28px rgba(20,42,68,.12);text-decoration:none;color:inherit}
+.contact-screen .contact-card-icon{width:52px;height:52px;flex:0 0 52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,#0F8A56,#0B6B42);color:#fff}
+.contact-screen .contact-card-icon svg{width:26px;height:26px}
+.contact-screen .contact-card .grow,.contact-screen .follow-card .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.contact-screen .contact-card b{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.contact-screen .contact-card small{font-size:16px;font-weight:800;color:var(--ink);overflow-wrap:anywhere}
+.contact-screen .contact-socials{margin:28px 0 8px}
+.contact-screen .contact-socials .section-head{margin:0 0 14px}
+.contact-screen .follow-card{display:flex;align-items:center;gap:16px;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px 20px;margin:0 0 12px;box-shadow:0 12px 28px rgba(20,42,68,.12);text-decoration:none;color:inherit}
+.contact-screen .follow-card:last-child{margin-bottom:0}
+.contact-screen .follow-card .menu-icon{width:52px;height:52px;flex:0 0 52px;border-radius:16px}
+.contact-screen .follow-card .menu-icon svg{width:26px;height:26px}
+.contact-screen .follow-card b{font-size:17px}
+.contact-screen .follow-card small{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
