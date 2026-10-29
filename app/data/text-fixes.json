@@ -1,0 +1,97 @@
+{
+ "flags": [
+  {
+   "exercise": "Cobra Stretch",
+   "id": "198",
+   "note": "Source instruction is missing a hold duration: it reads 'Hold this position for seconds.' No duration was invented; the source value is unknown."
+  },
+  {
+   "exercise": "Leg Barbell Curl Left",
+   "id": "272",
+   "note": "Source name mentions a barbell, but the source instructions describe a wall-supported stretch using your own leg; no barbell is used."
+  },
+  {
+   "exercise": "Leg Barbell Curl Right",
+   "id": "273",
+   "note": "Source name mentions a barbell, but the source instructions describe a wall-supported stretch using your own leg; no barbell is used."
+  },
+  {
+   "exercise": "Shoulder Gators",
+   "id": "263",
+   "note": "Source name is retained as supplied; it is not a standard exercise name. Follow the animation and instructions, not the name alone."
+  },
+  {
+   "exercise": "Chest Stretch",
+   "id": "143",
+   "note": "Static hold — no motion in the source animation. The source file has one layer and no animated properties, so the figure holds still by design."
+  }
+ ],
+ "note": "Verified typo corrections to source English text. Each 'find' string was confirmed verbatim in public/media/manifest.json. No wording is rephrased and no content is invented. The 'flags' entries mark source defects that cannot be corrected without inventing data (e.g. a missing number) — the app displays the flag instead of guessing.",
+ "typos": [
+  {
+   "exercise": "Chest Stretch",
+   "find": "Please keep you neck relaxed.",
+   "id": "143",
+   "replace": "Please keep your neck relaxed."
+  },
+  {
+   "exercise": "Incline Push-Ups",
+   "find": "To easy for you?",
+   "id": "28",
+   "replace": "Too easy for you?"
+  },
+  {
+   "exercise": "Incline Push-Ups",
+   "find": "Then push your body up down using your arm strength.",
+   "id": "28",
+   "replace": "Then push your body up and down using your arm strength."
+  },
+  {
+   "exercise": "Diamond Push-Ups",
+   "find": "Your shouldn't feel too much pressure on your shoulders.",
+   "id": "30",
+   "replace": "You shouldn't feel too much pressure on your shoulders."
+  },
+  {
+   "exercise": "Knee Push-Ups",
+   "find": "Your should not feel too much pressure on your shoulders.",
+   "id": "34",
+   "replace": "You should not feel too much pressure on your shoulders."
+  },
+  {
+   "exercise": "Sit-Ups",
+   "find": "put your arms over head",
+   "id": "2",
+   "replace": "put your arms overhead"
+  },
+  {
+   "exercise": "Reverse Crunches",
+   "find": "too  much",
+   "id": "4",
+   "replace": "too much"
+  },
+  {
+   "exercise": "Child's Pose",
+   "find": "Child'S Pose",
+   "id": "144",
+   "replace": "Child's Pose"
+  },
+  {
+   "exercise": "Multiple push-up variants",
+   "find": "Push Ups",
+   "replace": "Push-Ups"
+  },
+  {
+   "exercise": "Multiple push-up variants",
+   "find": "Push Up",
+   "replace": "Push-Up"
+  },
+  {
+   "exercise": "Plié Squats",
+   "find": "Plie Squats",
+   "id": "55",
+   "replace": "Plié Squats"
+  }
+ ],
+ "version": 1
+}
