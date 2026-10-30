@@ -537,3 +537,278 @@ export function latestMeasurement(list) {
 export function todayISO(d = new Date()) {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
+
+// ---- Workout-based personalization ("For you" on Training) ----------------
+// Pure computation over sessions the user already recorded + catalog
+// programs + preferences they already set. No DOM, no network, no new
+// data collection: nothing here reads location, analytics, advertising or
+// any third-party data, and nothing new is stored — the section derives
+// at render time from history/prefs that already sync, so guests work
+// from device history exactly like the rest of the app.
+//
+// DAY-INDEX FINDING (verified against app.js + engine.js, 2026-10-30):
+// the player stores dayId as the 1-based day NUMBER as a string —
+// start() passes dayId String(active.day+1) where active.day is the
+// 0-based calendar index, and engine.start() stores it as given. So a
+// Day-1 workout carries dayId "1", and the 0-based index used by
+// stepsFor()/route.day is Number(dayId) - 1. Report and the per-exercise
+// screen render `Day ${+dayId+1}`, which shows one MORE than the day
+// actually done for real player sessions — a pre-existing display
+// discrepancy in those two screens, deliberately NOT changed here
+// (this change touches Training only). sessionDayIndex() therefore
+// treats n >= 1 as a day number (index n-1) and n === 0 as a legacy
+// 0-based fixture (index 0); null/NaN/negative dayIds are unusable.
+// A recorded partial session is NEVER resumed mid-workout: engine
+// restore() only resumes the currently open, unfinished session from
+// its checkpoint, and history entries are never reopened into the
+// player — so a partial Continue restarts its day from step 1, and
+// the card says so ("Starts from the beginning").
+const PERSONAL_LEVELS = ['Beginner', 'Intermediate', 'Advanced'];
+/** Single focus area for a program, or null when none can be derived.
+ * Numeric 28-day series programs and custom programs have no single
+ * focus, so they contribute no focus count and can never be recommended
+ * on focus grounds — inventing one for them would be fake
+ * personalization. */
+export function programFocusLabel(program) {
+  const id = String(program?.id || '');
+  const m = id.match(/^d_(ab|ar|ch|le|sh)_/);
+  if (m) return { ab: 'Abs', ar: 'Arms', ch: 'Chest', le: 'Legs', sh: 'Shoulders' }[m[1]];
+  if (/^7__4_/.test(id)) return 'Full Body';
+  if (/^upper_[123]$/.test(id)) return 'Upper Body';
+  if (id === 'lower' || id === 'lower_new') return 'Lower Body';
+  return null;
+}
+/** 0-based day index for a recorded session, or null when unusable. */
+export function sessionDayIndex(session) {
+  if (!session || session.dayId == null) return null;
+  const n = Number(session.dayId);
+  if (!Number.isFinite(n) || n < 0) return null;
+  return n >= 1 ? Math.floor(n) - 1 : 0;
+}
+function doneStepCount(session) {
+  const results = session?.results || {};
+  return Object.values(results).filter((r) => r === 'done').length;
+}
+/** Continue target for one recorded session, or null.
+ * Partial → the same day again if still startable, else the next
+ * startable day at/after it; completed → the next startable day after
+ * it; if no later startable day exists → Day 1 ("Start again") if
+ * startable. A day that is no longer startable (e.g. edited into a
+ * preview-only day) is never offered. */
+function continueTarget(program, session, dayIndex, isStartable) {
+  const days = program.days.length;
+  const start = session.completed ? dayIndex + 1 : dayIndex;
+  for (let i = start; i < days; i++) {
+    if (isStartable(String(program.id), i)) {
+      return { programId: String(program.id), dayIndex: i, dayNumber: i + 1, kind: i === dayIndex ? 'pickup' : 'next', lastDayNumber: dayIndex + 1, partial: !session.completed, doneSteps: doneStepCount(session), totalSteps: Array.isArray(session.steps) ? session.steps.length : 0 };
+    }
+  }
+  if (isStartable(String(program.id), 0)) {
+    return { programId: String(program.id), dayIndex: 0, dayNumber: 1, kind: 'restart', lastDayNumber: dayIndex + 1, partial: !session.completed, doneSteps: doneStepCount(session), totalSteps: Array.isArray(session.steps) ? session.steps.length : 0 };
+  }
+  return null;
+}
+/** Recommendation from COMPLETED sessions only, or null.
+ * Top focus = most completed sessions, ties broken by latest completion
+ * then focus name (fully deterministic). Target level = the next level
+ * up when the user completed a routine at their current level in that
+ * focus, otherwise their level; if no untried startable program exists
+ * at the target level, same-level untried programs are tried before
+ * giving up. "Tried" means any recorded (non-preview) session for that
+ * program, completed or partial. Candidates must have a startable Day 1
+ * (the card opens Day 1) and are ordered by program id, so the same
+ * history always recommends the same program. */
+function recommendationTarget(recorded, byId, prefs, isStartable, triedIds) {
+  const counts = new Map();
+  for (const { s, i } of recorded) {
+    if (!s.completed) continue;
+    const p = byId.get(String(s.programId));
+    if (!p) continue;
+    const focus = programFocusLabel(p);
+    if (!focus) continue;
+    const t = Date.parse(s.finishedAt || '') || 0;
+    const cur = counts.get(focus) || { count: 0, latest: 0, latestIdx: -1 };
+    cur.count++;
+    if (t > cur.latest || (t === cur.latest && i > cur.latestIdx)) { cur.latest = t; cur.latestIdx = i; }
+    counts.set(focus, cur);
+  }
+  if (!counts.size) return null;
+  const [focus, info] = [...counts.entries()].sort((a, b) => (b[1].count - a[1].count) || (b[1].latest - a[1].latest) || (a[0] < b[0] ? -1 : 1))[0];
+  const userLevel = PERSONAL_LEVELS.includes(prefs?.level) ? prefs.level : 'Beginner';
+  let completedAtLevel = false;
+  for (const { s } of recorded) {
+    if (!s.completed) continue;
+    const p = byId.get(String(s.programId));
+    if (p && programFocusLabel(p) === focus && difficultyBolts(p).level === userLevel) { completedAtLevel = true; break; }
+  }
+  const li = PERSONAL_LEVELS.indexOf(userLevel);
+  const preferred = completedAtLevel && li < PERSONAL_LEVELS.length - 1 ? PERSONAL_LEVELS[li + 1] : userLevel;
+  const levelsToTry = preferred === userLevel ? [userLevel] : [preferred, userLevel];
+  for (const level of levelsToTry) {
+    const candidates = [...byId.values()].filter((p) => {
+      if (!p || !Array.isArray(p.days) || !p.days.length) return false;
+      if (programFocusLabel(p) !== focus) return false;
+      if (difficultyBolts(p).level !== level) return false;
+      if (triedIds.has(String(p.id))) return false;
+      return isStartable(String(p.id), 0);
+    }).sort((a, b) => String(a.id).localeCompare(String(b.id)));
+    if (candidates.length) {
+      return { programId: String(candidates[0].id), dayIndex: 0, focus, focusCount: info.count, userLevel, targetLevel: level, levelUp: level !== userLevel };
+    }
+  }
+  return null;
+}
+/** The "For you" data for Training, or {continue: null, recommendation:
+ * null} when there is nothing honest to show. history entries with
+ * preview set are excluded defensively (the engine never records
+ * previews, but a synced preview record must never drive the section).
+ * The Continue basis is the newest recorded session whose program still
+ * exists; if that session's day is unusable or has no startable target,
+ * Continue is null — an older workout is never silently substituted.
+ * isStartable(programId, dayIndex) is supplied by the caller (the app
+ * passes canTrain(stepsFor(...))) so startability has exactly one
+ * definition; tests pass a stub. */
+export function computePersonalization(history, programs, prefs, isStartable) {
+  const list = Array.isArray(programs) ? programs : [...(programs?.values?.() || [])];
+  const byId = new Map(list.filter((p) => p && p.id != null).map((p) => [String(p.id), p]));
+  const startable = typeof isStartable === 'function' ? isStartable : () => false;
+  const recorded = (Array.isArray(history) ? history : [])
+    .map((s, i) => ({ s, i }))
+    .filter(({ s }) => s && typeof s === 'object' && !s.preview && s.programId != null);
+  if (!recorded.length) return { continue: null, recommendation: null, starter: computeStarterTarget(list, prefs, startable) };
+  const byRecency = [...recorded].sort((a, b) => {
+    const fa = Date.parse(a.s.finishedAt || '') || 0, fb = Date.parse(b.s.finishedAt || '') || 0;
+    return (fb - fa) || (b.i - a.i);
+  });
+  let cont = null;
+  for (const { s } of byRecency) {
+    const p = byId.get(String(s.programId));
+    if (!p || !Array.isArray(p.days) || !p.days.length) continue;
+    const dayIndex = sessionDayIndex(s);
+    if (dayIndex == null || dayIndex < 0 || dayIndex >= p.days.length) break;
+    cont = continueTarget(p, s, dayIndex, startable);
+    break;
+  }
+  const triedIds = new Set(recorded.map(({ s }) => String(s.programId)));
+  const recommendation = recommendationTarget(recorded, byId, prefs, startable, triedIds);
+  return { continue: cont, recommendation, starter: null };
+}
+
+/** Starter target for a user with NO recorded (non-preview) history, or
+ * null. Selection uses prefs.level ONLY: the user's level is the one
+ * stored prefs field with an honest program mapping (single-day focus
+ * programs carry their level in the id, via difficultyBolts). prefs.goal
+ * ('Build consistency' / 'General fitness' / 'Mobility') has no program
+ * mapping anywhere in the code, prefs.comfort has no program-level
+ * suitability data (onboarding itself says programs need a suitability
+ * review and claims no automatic safe replacement), and prefs.frequency
+ * is a weekly session count, not a program attribute — so none of those
+ * three is claimed as a selection reason, and the card basis line names
+ * the level only. Candidates are single-day focus programs at the level
+ * with a startable Day 1, id-ordered; fallback is any program at the
+ * level with a startable Day 1, id-ordered. A user whose history exists
+ * but yields no card never gets a starter: computePersonalization only
+ * calls this when recorded history is empty. */
+export function computeStarterTarget(programs, prefs, isStartable) {
+  const list = Array.isArray(programs) ? programs : [...(programs?.values?.() || [])];
+  const startable = typeof isStartable === 'function' ? isStartable : () => false;
+  const level = PERSONAL_LEVELS.includes(prefs?.level) ? prefs.level : 'Beginner';
+  const usable = list.filter((p) => p && p.id != null && Array.isArray(p.days) && p.days.length && startable(String(p.id), 0));
+  const byId = (a, b) => String(a.id).localeCompare(String(b.id));
+  const single = usable.filter((p) => p.days.length === 1 && programFocusLabel(p) && difficultyBolts(p).level === level).sort(byId);
+  if (single.length) return { programId: String(single[0].id), dayIndex: 0, level, focus: programFocusLabel(single[0]) };
+  const any = usable.filter((p) => difficultyBolts(p).level === level).sort(byId);
+  if (any.length) return { programId: String(any[0].id), dayIndex: 0, level, focus: programFocusLabel(any[0]) };
+  return null;
+}
+
+/** Top completed focus (most completed sessions, ties by latest
+ * completion then focus name — the same deterministic rule as the
+ * recommendation), or null when no completed session has a focus. */
+function topCompletedFocus(recorded, byId) {
+  const counts = new Map();
+  for (const { s, i } of recorded) {
+    if (!s.completed) continue;
+    const p = byId.get(String(s.programId));
+    if (!p) continue;
+    const focus = programFocusLabel(p);
+    if (!focus) continue;
+    const t = Date.parse(s.finishedAt || '') || 0;
+    const cur = counts.get(focus) || { count: 0, latest: 0, latestIdx: -1 };
+    cur.count++;
+    if (t > cur.latest || (t === cur.latest && i > cur.latestIdx)) { cur.latest = t; cur.latestIdx = i; }
+    counts.set(focus, cur);
+  }
+  if (!counts.size) return null;
+  const [focus, info] = [...counts.entries()].sort((a, b) => (b[1].count - a[1].count) || (b[1].latest - a[1].latest) || (a[0] < b[0] ? -1 : 1))[0];
+  return { focus, count: info.count };
+}
+
+/** Discover personal row, or null. Only when completed history exists:
+ * up to 6 programs in the top completed focus with a startable Day 1,
+ * untried first (id-ordered), then tried (id-ordered). Preview sessions
+ * are excluded, partial sessions never count toward the focus, and no
+ * level filter is applied here — the row is focus-matched only, and the
+ * basis text says exactly that. */
+export function discoverPersonalRow(history, programs, isStartable) {
+  const list = Array.isArray(programs) ? programs : [...(programs?.values?.() || [])];
+  const byId = new Map(list.filter((p) => p && p.id != null).map((p) => [String(p.id), p]));
+  const startable = typeof isStartable === 'function' ? isStartable : () => false;
+  const recorded = (Array.isArray(history) ? history : [])
+    .map((s, i) => ({ s, i }))
+    .filter(({ s }) => s && typeof s === 'object' && !s.preview && s.programId != null);
+  const top = topCompletedFocus(recorded, byId);
+  if (!top) return null;
+  const triedIds = new Set(recorded.map(({ s }) => String(s.programId)));
+  const candidates = list.filter((p) => p && programFocusLabel(p) === top.focus && Array.isArray(p.days) && p.days.length && startable(String(p.id), 0));
+  const byIdSort = (a, b) => String(a.id).localeCompare(String(b.id));
+  const untried = candidates.filter((p) => !triedIds.has(String(p.id))).sort(byIdSort);
+  const tried = candidates.filter((p) => triedIds.has(String(p.id))).sort(byIdSort);
+  const programIds = [...untried, ...tried].slice(0, 6).map((p) => String(p.id));
+  if (!programIds.length) return null;
+  return { focus: top.focus, focusCount: top.count, programIds };
+}
+
+function startOfDay(d) { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
+function mondayOfWeek(now) { const d = startOfDay(now); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d; }
+
+/** ONE honest Report next-step line, or null (never, in practice — the
+ * no-history case still yields a goal line). Computed only from
+ * completed, non-preview sessions and prefs.frequency; preview sessions
+ * never count, and nothing is guessed. Priority: no completed sessions
+ * → start line; last completed session 3+ days ago → return-after-gap
+ * line (streak is 0 by construction then); this week's completed count
+ * below the weekly goal → remaining-sessions line; otherwise the goal
+ * is reached, with the streak milestone stated exactly (a session today
+ * makes it streak+1 only when today has no completed session yet).
+ * `nowMs` exists only so tests can fix "today"; the app calls without
+ * it. Streak uses the app's rule: consecutive completed days ending
+ * today, or yesterday when today has none yet. */
+export function computeReportNudge(history, prefs, nowMs = Date.now()) {
+  const freqRaw = Number(prefs?.frequency);
+  const weekGoal = Number.isFinite(freqRaw) && freqRaw >= 1 ? Math.floor(freqRaw) : 3;
+  const completed = (Array.isArray(history) ? history : []).filter((s) => s && typeof s === 'object' && !s.preview && s.completed);
+  if (!completed.length) {
+    return { kind: 'start', streak: 0, weekDone: 0, weekGoal, daysSinceLast: null, line: `No completed sessions yet. Your weekly goal is ${weekGoal} session${weekGoal === 1 ? '' : 's'} — start with Day 1 of a routine.` };
+  }
+  const now = new Date(nowMs);
+  const todayStr = startOfDay(now).toDateString();
+  const daySet = new Set(completed.map((s) => new Date(s.finishedAt).toDateString()).filter((x) => x !== 'Invalid Date'));
+  let streak = 0;
+  const cursor = startOfDay(now);
+  if (!daySet.has(cursor.toDateString())) cursor.setDate(cursor.getDate() - 1);
+  while (daySet.has(cursor.toDateString())) { streak++; cursor.setDate(cursor.getDate() - 1); }
+  const weekStart = mondayOfWeek(now);
+  const weekDone = completed.filter((s) => new Date(s.finishedAt) >= weekStart).length;
+  const lastMs = Math.max(...completed.map((s) => Date.parse(s.finishedAt || '')).filter((n) => Number.isFinite(n)));
+  const daysSinceLast = Number.isFinite(lastMs) ? Math.floor((startOfDay(now) - startOfDay(lastMs)) / 86400000) : null;
+  if (daysSinceLast != null && daysSinceLast >= 3) {
+    return { kind: 'gap', streak, weekDone, weekGoal, daysSinceLast, line: `It's been ${daysSinceLast} days since your last completed session. Your streak is back to 0 — a session today starts a new one.` };
+  }
+  if (weekDone < weekGoal) {
+    const remaining = weekGoal - weekDone;
+    return { kind: 'goal', streak, weekDone, weekGoal, daysSinceLast, line: `${weekDone} of ${weekGoal} sessions this week — ${remaining} more to reach your weekly goal.` };
+  }
+  const todayDone = daySet.has(todayStr);
+  return { kind: 'goalReached', streak, weekDone, weekGoal, daysSinceLast, line: todayDone ? `Weekly goal reached (${weekDone} of ${weekGoal}) · day streak ${streak} days, including today.` : `Weekly goal reached (${weekDone} of ${weekGoal}) · day streak ${streak} days — a session today makes it ${streak + 1}.` };
+}
