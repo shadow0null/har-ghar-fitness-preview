@@ -951,3 +951,7 @@ html[data-theme=midnight] .ob-dots i{background:#3d5a75}
 .measure-current{display:flex;gap:18px;flex-wrap:wrap;margin:6px 0 4px}.measure-current>div{display:flex;flex-direction:column;gap:2px}.measure-current b{font-size:28px;font-weight:850;color:var(--blue)}.measure-current span{font-size:13px;font-weight:800;color:var(--teal)}
 .measure-form{display:grid;gap:12px;margin:14px 0}.measure-field{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:700;color:var(--text)}.measure-field input{min-height:44px;padding:12px 14px;border:1px solid var(--line);border-radius:11px;background:var(--canvas);color:var(--ink);font-size:16px;width:100%}
 .measure-history-head{margin-top:18px}.measure-del{width:auto;padding:12px 16px;font-size:13px}
+
+/* cycle9 (preview port): floating contact button */
+.float-contact{position:fixed;right:16px;bottom:96px;z-index:30;display:flex;align-items:center;gap:8px;background:#25D366;color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:0 16px;height:48px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.28)}
+.float-contact:hover{background:#1EBE5D}
