@@ -1,6 +1,3 @@
-self.options = {
-    "domain": "3nbf4.com",
-    "zoneId": 12150649
-}
-self.lary = ""
-importScripts('https://3nbf4.com/act/files/service-worker.min.js?r=sw')
+// Har Ghar Fitness: Monetag push removed 2026-10-30. This worker unregisters itself.
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', () => { self.registration.unregister(); });
